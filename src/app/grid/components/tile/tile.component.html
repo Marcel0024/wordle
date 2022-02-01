@@ -1,0 +1,11 @@
+<div
+  fxLayoutAlign="center center"
+  class="container"
+  [style.background-color]="color"
+  (click)="clicked()"
+  [ngStyle]="{ cursor: isKeyboard ? 'pointer' : '' }"
+>
+  <span>
+    {{ text }}
+  </span>
+</div>

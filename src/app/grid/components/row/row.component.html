@@ -1,0 +1,7 @@
+<div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="5px">
+  <app-tile
+    *ngFor="let tile of tiles"
+    [text]="tile.letter"
+    [color]="tile.color"
+  ></app-tile>
+</div>
