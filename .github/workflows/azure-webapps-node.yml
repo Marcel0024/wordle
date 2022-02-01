@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: wordle-papiamento #
+  AZURE_WEBAPP_NAME: papiamento-wordle
   AZURE_WEBAPP_PACKAGE_PATH: "./dist/wordle-papiamento"
   NODE_VERSION: "14.x"
 
