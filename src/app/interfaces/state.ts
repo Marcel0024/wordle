@@ -3,6 +3,8 @@ export interface State {
 }
 
 export interface Grid {
+  gameStatus: GameStatus;
+  word: string;
   rows: Row[];
 }
 
@@ -29,4 +31,10 @@ export enum Evaluation {
   ABSENT = 'ABSENT',
   PRESENT = 'PRESENT',
   CORRECT = 'CORRECT',
+}
+
+export enum GameStatus {
+  ONGOING = 'ONGOING',
+  WON = 'WON',
+  LOST = 'LOST',
 }

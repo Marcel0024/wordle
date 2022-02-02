@@ -867,6 +867,7 @@ export const allwords: string[] = [
   'PAGAY',
   'PAGER',
   'PAILA',
+  'PATIN',
   'PALET',
   'PALMA',
   'PANTY',

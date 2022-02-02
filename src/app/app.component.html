@@ -1,19 +1,32 @@
 <div fxLayoutAlign="space-around center" fxLayout="column" class="container">
-  <span class="title">Papiamento Wordle</span>
+  <div
+    fxLayoutAlign="space-around center"
+    fxLayoutAlign.gt-sm="center center"
+    fxLayout="row"
+    [style.width]="'100%'"
+  >
+    <button mat-icon-button color="accent" (click)="openInstructionsDialog()">
+      <mat-icon>info</mat-icon>
+    </button>
+    <span class="title">Papiamento Wordle</span>
+    <div></div>
+  </div>
   <div
     fxLayoutAlign="center center"
     fxLayout="column"
-    [ngStyle]="{ display: this.stateService.gameFinished ? '' : 'none' }"
+    [ngStyle]="{
+      display: this.gameStatus !== gameStatusEnum.ONGOING ? '' : 'none'
+    }"
   >
-    <span class="congrats">{{ this.stateService.gameFinishedMessage }}</span>
+    <span class="congrats">{{ this.gameService.gameFinishedMessage }}</span>
     <div>
       <button mat-raised-button color="accent" (click)="startNewGame()">
-        Palabra nobo
+        Palabra nobo <mat-icon>refresh</mat-icon>
       </button>
     </div>
   </div>
   <div>
-    <app-grid [rows]="stateService.grid.rows"></app-grid>
+    <app-grid [rows]="gameService.grid.rows"></app-grid>
   </div>
   <div fxLayoutAlign="center end">
     <app-keyboard
