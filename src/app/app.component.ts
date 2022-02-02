@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Grid } from './interfaces/state';
 import { StateService } from './services/state.service';
 
@@ -12,17 +12,34 @@ export class AppComponent {
     stateService.init();
   }
 
-  keyboardClick(letter: string): void {
+  onDispalyKeyboardClick(letter: string): void {
     if (letter === 'BACKSPACE') {
-      this.stateService.backspaceClicked();
+      this.stateService.backspace();
     } else if (letter === 'ENTER') {
-      this.stateService.enterClicked();
+      this.stateService.enter();
     } else {
-      this.stateService.letterClicked(letter);
+      this.stateService.typeLetter(letter);
+    }
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  realKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'Backspace') {
+      this.stateService.backspace();
+    } else if (event.key === 'Enter') {
+      this.stateService.enter();
+    } else {
+      this.stateService.typeLetter(event.key.toUpperCase());
     }
   }
 
   startNewGame(): void {
     this.stateService.init();
   }
+
+  keyboardRows = [
+    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+    ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'Ñ', 'M', 'BACKSPACE'],
+  ];
 }

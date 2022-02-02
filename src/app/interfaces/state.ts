@@ -16,9 +16,17 @@ export interface Tile {
   color: string;
 
   status: Status;
+  evaluation: Evaluation;
 }
 
 export enum Status {
   OPEN = 'OPEN',
-  COMPLETED = 'COMPLETED',
+  FILLED = 'FILLED',
+  CHECKED = 'CHECKED',
+}
+
+export enum Evaluation {
+  ABSENT = 'ABSENT',
+  PRESENT = 'PRESENT',
+  CORRECT = 'CORRECT',
 }

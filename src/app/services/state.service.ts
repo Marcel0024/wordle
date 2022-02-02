@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { allwords } from 'src/words';
-import { Grid, Row, Status, Tile } from '../interfaces/state';
+import { Evaluation, Grid, Row, Status, Tile } from '../interfaces/state';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +14,9 @@ export class StateService {
 
   gameFinished = false;
   gameFinishedMessage = ``;
+
+  colorGold = '#b59f2b';
+  colorGreen = '#538d3e';
 
   constructor() {}
 
@@ -33,6 +36,7 @@ export class StateService {
           letter: '',
           status: Status.OPEN,
           color: 'transparent',
+          evaluation: Evaluation.ABSENT,
         };
         row.tiles.push(tile);
       }
@@ -43,7 +47,7 @@ export class StateService {
     return this.grid;
   }
 
-  letterClicked(letter: string) {
+  typeLetter(letter: string) {
     let row = this.getOpenRow();
     let tile = row.tiles.filter((r) => r.status === Status.OPEN)[0];
 
@@ -52,29 +56,38 @@ export class StateService {
     }
 
     tile.letter = letter;
-    tile.status = Status.COMPLETED;
+    tile.status = Status.FILLED;
+    tile.evaluation = Evaluation.ABSENT;
   }
 
-  backspaceClicked(): void {
+  backspace(): void {
     let row = this.getOpenRow();
-    let tile = row.tiles
-      .filter((r) => r.status === Status.COMPLETED)
-      .slice(-1)[0];
+    let tile = row.tiles.filter((r) => r.status === Status.FILLED).slice(-1)[0];
 
     if (tile) {
       tile.letter = '';
       tile.status = Status.OPEN;
+      tile.evaluation = Evaluation.ABSENT;
     }
   }
 
-  enterClicked(): void {
+  enter(): void {
     let row = this.getOpenRow();
 
-    if (!row.tiles.every((x) => x.status === Status.COMPLETED)) {
+    if (!row.tiles.every((x) => x.status === Status.FILLED)) {
       return;
     }
 
     const word = row.tiles.map((x) => x.letter).join('');
+
+    if (
+      this.grid.rows
+        .filter((r) => r.status === Status.CHECKED)
+        .some((r) => r.tiles.map((t) => t.letter).join('') === word)
+    ) {
+      alert(`${word} a wordo purba caba.`);
+      return;
+    }
 
     if (!allwords.includes(word)) {
       alert(`${word} no ta un palabra den Papiamento.`);
@@ -86,15 +99,17 @@ export class StateService {
     row.tiles.forEach((tile, index) => {
       const letter = this.word[index];
       if (tile.letter === letter) {
-        tile.color = 'green';
-        tile.status = Status.COMPLETED;
+        tile.color = this.colorGreen;
+        tile.status = Status.CHECKED;
+        tile.evaluation = Evaluation.CORRECT;
       }
     });
 
     row.tiles.forEach((tile, index) => {
       const currentLetter = this.word[index];
       if (tile.letter === currentLetter) {
-        tile.color = 'green';
+        tile.color = this.colorGreen;
+        tile.evaluation = Evaluation.CORRECT;
       } else if (wordLetters.includes(tile.letter)) {
         const totalLetters = wordLetters.filter(
           (x) => x === tile.letter
@@ -103,13 +118,13 @@ export class StateService {
         const totalLettersCorrected = row.tiles.filter(
           (x) =>
             x.letter === tile.letter &&
-            (x.color === 'green' || x.color === 'gold')
+            (x.evaluation === Evaluation.CORRECT ||
+              x.evaluation === Evaluation.PRESENT)
         ).length;
 
-        if (tile.color === 'green') {
-          // do nothing
-        } else if (totalLettersCorrected < totalLetters) {
-          tile.color = 'gold';
+        if (totalLettersCorrected < totalLetters) {
+          tile.color = this.colorGold;
+          tile.evaluation = Evaluation.PRESENT;
         } else {
           tile.color = 'grey';
         }
@@ -117,18 +132,22 @@ export class StateService {
         tile.color = 'grey';
       }
 
-      tile.status = Status.COMPLETED;
+      tile.status = Status.CHECKED;
     });
 
-    row.status = Status.COMPLETED;
+    row.status = Status.CHECKED;
 
-    if (this.grid.rows.some((x) => x.tiles.every((x) => x.color === 'green'))) {
+    if (
+      this.grid.rows.some((x) =>
+        x.tiles.every((x) => x.evaluation === Evaluation.CORRECT)
+      )
+    ) {
       this.gameFinished = true;
       this.gameFinishedMessage = `Pabien! 🎉🎉`;
       return;
     }
 
-    if (this.grid.rows.every((x) => x.status === Status.COMPLETED)) {
+    if (this.grid.rows.every((x) => x.status === Status.CHECKED)) {
       this.gameFinished = true;
       this.gameFinishedMessage = `Jammer! E palabra tawata ${this.word}`;
       return;

@@ -16,7 +16,10 @@
     </div>
     <app-grid [rows]="stateService.grid.rows"></app-grid>
     <div fxHide fxShow.gt-sm></div>
-    <app-keyboard (onClick)="keyboardClick($event)"></app-keyboard>
+    <app-keyboard
+      [rows]="keyboardRows"
+      (onClick)="onDispalyKeyboardClick($event)"
+    ></app-keyboard>
   </div>
   <div fxHide fxShow.gt-sm></div>
 </div>
