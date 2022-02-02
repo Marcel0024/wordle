@@ -222,7 +222,9 @@ export class GameService {
                 evaluation: Evaluation.PRESENT,
               });
             } else {
-              letter.evaluation = Evaluation.PRESENT;
+              if (letter.evaluation !== Evaluation.CORRECT) {
+                letter.evaluation = Evaluation.PRESENT;
+              }
             }
           }
           if (tile.evaluation == Evaluation.CORRECT) {
