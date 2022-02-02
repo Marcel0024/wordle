@@ -29,7 +29,9 @@ export class AppComponent {
     } else if (event.key === 'Enter') {
       this.stateService.enter();
     } else {
-      this.stateService.typeLetter(event.key.toUpperCase());
+      if (event.key.length === 1) {
+        this.stateService.typeLetter(event.key.toUpperCase());
+      }
     }
   }
 

@@ -1,6 +1,11 @@
 .container {
-  min-width: 3em;
-  width: auto;
+  width: 3em;
+  height: 3.5em;
+  border: 2px solid grey;
+}
+
+.large-container {
+  width: 10em;
   height: 3.5em;
   border: 2px solid grey;
 }

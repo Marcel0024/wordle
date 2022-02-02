@@ -1,4 +1,4 @@
-div {
+.container {
   height: 100%;
 }
 
@@ -10,4 +10,15 @@ div {
 
 .congrats {
   color: white;
+}
+
+.new-game-button {
+  background-color: #fafafa; /* Green */
+  border: none;
+  color: black;
+  padding: 15px 25px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
 }

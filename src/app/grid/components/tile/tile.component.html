@@ -1,6 +1,7 @@
 <div
   fxLayoutAlign="center center"
-  class="container"
+  [class.container]="!isLargeWord()"
+  [class.large-container]="isLargeWord()"
   [style.background-color]="color"
   (click)="clicked()"
   [ngStyle]="{ cursor: isKeyboard ? 'pointer' : '' }"

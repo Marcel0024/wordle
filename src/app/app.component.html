@@ -1,22 +1,24 @@
-<div fxLayout="row" fxLayoutAlign="space-between center">
+<div class="container" fxLayout="row" fxLayoutAlign="space-between center">
   <div fxHide fxShow.gt-sm></div>
-  <div fxLayoutAlign="space-between center" fxLayout="column">
-    <span class="title">Papiamento Wordle</span>
+  <div fxLayoutAlign="space-between center" fxLayout="column" class="container">
+    <span fxHide fxShow.gt-sm class="title">Papiamento Wordle</span>
     <div fxHide fxShow.gt-sm></div>
     <div
-      [ngStyle]="{ display: this.stateService.gameFinished ? '' : 'none' }"
       fxLayoutAlign="center center"
       fxLayout="column"
-      fxLayoutGap="5px"
+      [ngStyle]="{ display: this.stateService.gameFinished ? '' : 'none' }"
     >
       <span class="congrats">{{ this.stateService.gameFinishedMessage }}</span>
-      <button class="new-game-button" (click)="startNewGame()">
-        Palabra nobo
-      </button>
+      <div>
+        <button class="new-game-button" (click)="startNewGame()">
+          Palabra nobo
+        </button>
+      </div>
     </div>
     <app-grid [rows]="stateService.grid.rows"></app-grid>
     <div fxHide fxShow.gt-sm></div>
     <app-keyboard
+      style="width: auto"
       [rows]="keyboardRows"
       (onClick)="onDispalyKeyboardClick($event)"
     ></app-keyboard>

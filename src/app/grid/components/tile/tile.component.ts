@@ -20,4 +20,8 @@ export class TileComponent implements OnInit {
   clicked(): void {
     this.onClick.emit(this.text);
   }
+
+  isLargeWord(): boolean {
+    return this.text.length > 2;
+  }
 }
