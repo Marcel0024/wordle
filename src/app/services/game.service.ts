@@ -23,11 +23,8 @@ export class GameService {
 
   gameFinishedMessage = ``;
 
-  colorGold = '#b59f2b';
-  colorGreen = '#538d3e';
-  colorGrey = '#3a3a3c';
-
   gameStatus$ = new EventEmitter<GameStatus>();
+  foundLetters$ = new EventEmitter<FoundLetter[]>();
 
   constructor(
     private readonly stateService: StateService,
@@ -39,6 +36,7 @@ export class GameService {
 
     if (stateGrid && !force) {
       this.grid = stateGrid;
+      this.checkForFoundLeters();
     } else {
       this.grid = {
         gameStatus: GameStatus.ONGOING,
@@ -53,7 +51,6 @@ export class GameService {
           let tile: Tile = {
             letter: '',
             status: Status.OPEN,
-            color: 'transparent',
             evaluation: Evaluation.ABSENT,
           };
           row.tiles.push(tile);
@@ -106,7 +103,7 @@ export class GameService {
 
     if (
       this.grid.rows
-        .filter((r) => r.status === Status.CHECKED)
+        .filter((r) => r.status === Status.COMPLETED)
         .some((r) => r.tiles.map((t) => t.letter).join('') === word)
     ) {
       this.dialog.open(DialogComponent, {
@@ -133,8 +130,7 @@ export class GameService {
     row.tiles.forEach((tile, index) => {
       const letter = this.grid.word[index];
       if (tile.letter === letter) {
-        tile.color = this.colorGreen;
-        tile.status = Status.CHECKED;
+        tile.status = Status.COMPLETED;
         tile.evaluation = Evaluation.CORRECT;
       }
     });
@@ -142,7 +138,6 @@ export class GameService {
     row.tiles.forEach((tile, index) => {
       const currentLetter = this.grid.word[index];
       if (tile.letter === currentLetter) {
-        tile.color = this.colorGreen;
         tile.evaluation = Evaluation.CORRECT;
       } else if (wordLetters.includes(tile.letter)) {
         const totalLetters = wordLetters.filter(
@@ -157,19 +152,16 @@ export class GameService {
         ).length;
 
         if (totalLettersCorrected < totalLetters) {
-          tile.color = this.colorGold;
           tile.evaluation = Evaluation.PRESENT;
-        } else {
-          tile.color = this.colorGrey;
         }
-      } else {
-        tile.color = this.colorGrey;
       }
 
-      tile.status = Status.CHECKED;
+      tile.status = Status.COMPLETED;
     });
 
-    row.status = Status.CHECKED;
+    row.status = Status.COMPLETED;
+
+    this.checkForFoundLeters();
 
     if (
       this.grid.rows.some((x) =>
@@ -183,14 +175,14 @@ export class GameService {
         data: {
           title: 'Pabien!  🎉🎉',
           text: `Bo a rij e palabra den ${
-            this.grid.rows.filter((x) => x.status === Status.CHECKED).length
+            this.grid.rows.filter((x) => x.status === Status.COMPLETED).length
           } biaha!`,
         },
       });
       return;
     }
 
-    if (this.grid.rows.every((x) => x.status === Status.CHECKED)) {
+    if (this.grid.rows.every((x) => x.status === Status.COMPLETED)) {
       this.grid.gameStatus = GameStatus.LOST;
       this.gameStatus$.emit(this.grid.gameStatus);
       this.stateService.updateGrid(this.grid);
@@ -205,8 +197,52 @@ export class GameService {
 
     this.stateService.updateGrid(this.grid);
   }
+  checkForFoundLeters() {
+    let foundLetters: FoundLetter[] = [];
+
+    this.grid.rows
+      .filter((r) => r.status === Status.COMPLETED)
+      .forEach((row) => {
+        row.tiles.forEach((tile) => {
+          if (tile.evaluation === Evaluation.PRESENT) {
+            if (!foundLetters.some((fl) => fl.letter === tile.letter)) {
+              foundLetters.push({
+                letter: tile.letter,
+                evaluation: Evaluation.PRESENT,
+              });
+            }
+          } else if (tile.evaluation == Evaluation.ABSENT) {
+            if (!foundLetters.some((fl) => fl.letter === tile.letter)) {
+              foundLetters.push({
+                letter: tile.letter,
+                evaluation: Evaluation.ABSENT,
+              });
+            }
+          }
+          if (tile.evaluation == Evaluation.CORRECT) {
+            if (!foundLetters.some((fl) => fl.letter === tile.letter)) {
+              foundLetters.push({
+                letter: tile.letter,
+                evaluation: Evaluation.CORRECT,
+              });
+            }
+          }
+        });
+      });
+
+    this.foundLetters$.emit(foundLetters);
+  }
 
   getOpenRow(): Row {
     return this.grid.rows.filter((r) => r.status === Status.OPEN)[0];
   }
+
+  getWord(): string {
+    return this.grid.word;
+  }
+}
+
+export interface FoundLetter {
+  letter: string;
+  evaluation: Evaluation;
 }

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Tile } from 'src/app/interfaces/state';
+import { Evaluation, Tile } from 'src/app/interfaces/state';
 
 @Component({
   selector: 'app-tile',
@@ -7,8 +7,12 @@ import { Tile } from 'src/app/interfaces/state';
   styleUrls: ['./tile.component.scss'],
 })
 export class TileComponent implements OnInit {
+  colorGold = '#b59f2b';
+  colorGreen = '#538d3e';
+  colorGrey = '#3a3a3c';
+
   @Input() text!: string;
-  @Input() color: string = 'transparent';
+  @Input() evaluation!: Evaluation | undefined;
   @Input() isKeyboard = false;
 
   @Output() onClick = new EventEmitter<string>();
@@ -23,5 +27,17 @@ export class TileComponent implements OnInit {
 
   isLargeWord(): boolean {
     return this.text.length > 2;
+  }
+  getColor(): string {
+    switch (this.evaluation) {
+      case Evaluation.CORRECT:
+        return this.colorGreen;
+      case Evaluation.PRESENT:
+        return this.colorGold;
+      case Evaluation.ABSENT:
+        return this.colorGrey;
+      default:
+        return this.isKeyboard ? 'grey' : 'transparent';
+    }
   }
 }

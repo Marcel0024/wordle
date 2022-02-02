@@ -9,7 +9,16 @@
       <mat-icon>info</mat-icon>
     </button>
     <span class="title">Papiamento Wordle</span>
-    <div></div>
+    <button
+      mat-icon-button
+      color="warning"
+      (click)="startNewGameWithPrompt()"
+      [ngStyle]="{
+        display: this.gameStatus === gameStatusEnum.ONGOING ? '' : 'none'
+      }"
+    >
+      <mat-icon>refresh</mat-icon>
+    </button>
   </div>
   <div
     fxLayoutAlign="center center"
@@ -31,6 +40,7 @@
   <div fxLayoutAlign="center end">
     <app-keyboard
       [rows]="keyboardRows"
+      [foundLetters]="foundLetters"
       (onClick)="onDisplayKeyboardClick($event)"
     ></app-keyboard>
   </div>

@@ -2,7 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
 import { GameStatus, Grid } from './interfaces/state';
-import { GameService } from './services/game.service';
+import { FoundLetter, GameService } from './services/game.service';
 import { StateService } from './services/state.service';
 
 @Component({
@@ -13,6 +13,8 @@ import { StateService } from './services/state.service';
 export class AppComponent implements OnInit {
   gameStatus = GameStatus.ONGOING;
   gameStatusEnum = GameStatus;
+
+  foundLetters: FoundLetter[] = [];
 
   constructor(
     public readonly gameService: GameService,
@@ -27,6 +29,7 @@ export class AppComponent implements OnInit {
     }
 
     this.gameService.gameStatus$.subscribe((x) => (this.gameStatus = x));
+    this.gameService.foundLetters$.subscribe((x) => (this.foundLetters = x));
     this.gameService.init();
   }
 
@@ -54,6 +57,18 @@ export class AppComponent implements OnInit {
   }
 
   startNewGame(): void {
+    this.gameService.init(true);
+  }
+
+  startNewGameWithPrompt(): void {
+    if (!confirm('Cuminsa cu un palabra nobo?')) {
+      return;
+    }
+
+    const word = this.gameService.getWord();
+
+    alert('E solution: ' + word);
+
     this.gameService.init(true);
   }
 

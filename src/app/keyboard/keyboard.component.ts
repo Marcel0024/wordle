@@ -1,4 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Evaluation } from '../interfaces/state';
+import { FoundLetter } from '../services/game.service';
 
 @Component({
   selector: 'app-keyboard',
@@ -7,6 +9,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 })
 export class KeyboardComponent implements OnInit {
   @Input() rows!: string[][];
+  @Input() foundLetters: FoundLetter[] = [];
+
   @Output() onClick = new EventEmitter<string>();
 
   constructor() {}
@@ -15,5 +19,11 @@ export class KeyboardComponent implements OnInit {
 
   letterClicked(letter: string): void {
     this.onClick.emit(letter);
+  }
+
+  getEvaluation(letter: string): Evaluation | undefined {
+    const foundLetter = this.foundLetters.find((x) => x.letter === letter);
+
+    return foundLetter ? foundLetter.evaluation : undefined;
   }
 }

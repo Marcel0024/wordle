@@ -3,7 +3,7 @@
   [class.container]="!isLargeWord()"
   [class.large-container]="isLargeWord()"
   [class.grid]="!isKeyboard"
-  [style.background-color]="color"
+  [style.background-color]="getColor()"
   (click)="clicked()"
   [ngStyle]="{ cursor: isKeyboard ? 'pointer' : '' }"
   fxFlex="4 4 0"

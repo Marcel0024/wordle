@@ -12,19 +12,59 @@
   <mat-divider></mat-divider>
   <h3>Examples</h3>
   <div fxLayout="row" fxLayoutGap="5px">
-    <app-tile [isKeyboard]="true" [text]="'N'" [color]="'grey'"></app-tile>
-    <app-tile [isKeyboard]="true" [text]="'I'" [color]="'green'"></app-tile>
-    <app-tile [isKeyboard]="true" [text]="'E'" [color]="'grey'"></app-tile>
-    <app-tile [isKeyboard]="true" [text]="'T'" [color]="'grey'"></app-tile>
-    <app-tile [isKeyboard]="true" [text]="'O'" [color]="'grey'"></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'N'"
+      [evaluation]="evaluation.ABSENT"
+    ></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'I'"
+      [evaluation]="evaluation.CORRECT"
+    ></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'E'"
+      [evaluation]="evaluation.ABSENT"
+    ></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'T'"
+      [evaluation]="evaluation.ABSENT"
+    ></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'O'"
+      [evaluation]="evaluation.ABSENT"
+    ></app-tile>
   </div>
   <p>E letter I ta den e palabra y den e lugar corecto.</p>
   <div fxLayout="row" fxLayoutGap="5px">
-    <app-tile [isKeyboard]="true" [text]="'Y'" [color]="'grey'"></app-tile>
-    <app-tile [isKeyboard]="true" [text]="'O'" [color]="'grey'"></app-tile>
-    <app-tile [isKeyboard]="true" [text]="'R'" [color]="'gold'"></app-tile>
-    <app-tile [isKeyboard]="true" [text]="'O'" [color]="'grey'"></app-tile>
-    <app-tile [isKeyboard]="true" [text]="'N'" [color]="'grey'"></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'Y'"
+      [evaluation]="evaluation.ABSENT"
+    ></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'O'"
+      [evaluation]="evaluation.ABSENT"
+    ></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'R'"
+      [evaluation]="evaluation.PRESENT"
+    ></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'O'"
+      [evaluation]="evaluation.ABSENT"
+    ></app-tile>
+    <app-tile
+      [isKeyboard]="true"
+      [text]="'N'"
+      [evaluation]="evaluation.ABSENT"
+    ></app-tile>
   </div>
   <p>E letter R ta den e palabra pero no den e position corecto.</p>
   <mat-divider></mat-divider>

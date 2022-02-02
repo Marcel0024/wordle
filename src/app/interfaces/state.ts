@@ -15,8 +15,6 @@ export interface Row {
 
 export interface Tile {
   letter: string;
-  color: string;
-
   status: Status;
   evaluation: Evaluation;
 }
@@ -24,7 +22,7 @@ export interface Tile {
 export enum Status {
   OPEN = 'OPEN',
   FILLED = 'FILLED',
-  CHECKED = 'CHECKED',
+  COMPLETED = 'CHECKED',
 }
 
 export enum Evaluation {
