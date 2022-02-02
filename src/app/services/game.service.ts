@@ -204,14 +204,7 @@ export class GameService {
       .filter((r) => r.status === Status.COMPLETED)
       .forEach((row) => {
         row.tiles.forEach((tile) => {
-          if (tile.evaluation === Evaluation.PRESENT) {
-            if (!foundLetters.some((fl) => fl.letter === tile.letter)) {
-              foundLetters.push({
-                letter: tile.letter,
-                evaluation: Evaluation.PRESENT,
-              });
-            }
-          } else if (tile.evaluation == Evaluation.ABSENT) {
+          if (tile.evaluation == Evaluation.ABSENT) {
             if (!foundLetters.some((fl) => fl.letter === tile.letter)) {
               foundLetters.push({
                 letter: tile.letter,
@@ -219,12 +212,26 @@ export class GameService {
               });
             }
           }
+          if (tile.evaluation == Evaluation.PRESENT) {
+            let letter = foundLetters.find((fl) => fl.letter === tile.letter);
+            if (!letter) {
+              foundLetters.push({
+                letter: tile.letter,
+                evaluation: Evaluation.PRESENT,
+              });
+            } else {
+              letter.evaluation = Evaluation.PRESENT;
+            }
+          }
           if (tile.evaluation == Evaluation.CORRECT) {
-            if (!foundLetters.some((fl) => fl.letter === tile.letter)) {
+            let letter = foundLetters.find((fl) => fl.letter === tile.letter);
+            if (!letter) {
               foundLetters.push({
                 letter: tile.letter,
                 evaluation: Evaluation.CORRECT,
               });
+            } else {
+              letter.evaluation = Evaluation.CORRECT;
             }
           }
         });
