@@ -36,8 +36,10 @@ export class TileComponent implements OnInit {
         return this.colorGold;
       case Evaluation.ABSENT:
         return this.colorGrey;
+      case Evaluation.UNKNOWN:
+        return 'transparent';
       default:
-        return this.isKeyboard ? 'grey' : 'transparent';
+        return 'grey';
     }
   }
 }

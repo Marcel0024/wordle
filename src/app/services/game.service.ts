@@ -36,7 +36,6 @@ export class GameService {
 
     if (stateGrid && !force) {
       this.grid = stateGrid;
-      this.checkForFoundLeters();
     } else {
       this.grid = {
         gameStatus: GameStatus.ONGOING,
@@ -51,7 +50,7 @@ export class GameService {
           let tile: Tile = {
             letter: '',
             status: Status.OPEN,
-            evaluation: Evaluation.ABSENT,
+            evaluation: Evaluation.UNKNOWN,
           };
           row.tiles.push(tile);
         }
@@ -60,6 +59,7 @@ export class GameService {
       }
       this.stateService.updateGrid(this.grid);
     }
+    this.checkForFoundLeters();
     this.gameStatus$.emit(this.grid.gameStatus);
   }
 
@@ -73,7 +73,7 @@ export class GameService {
 
     tile.letter = letter;
     tile.status = Status.FILLED;
-    tile.evaluation = Evaluation.ABSENT;
+    tile.evaluation = Evaluation.UNKNOWN;
 
     this.stateService.updateGrid(this.grid);
   }
@@ -87,7 +87,7 @@ export class GameService {
     }
     tile.letter = '';
     tile.status = Status.OPEN;
-    tile.evaluation = Evaluation.ABSENT;
+    tile.evaluation = Evaluation.UNKNOWN;
 
     this.stateService.updateGrid(this.grid);
   }
@@ -153,7 +153,11 @@ export class GameService {
 
         if (totalLettersCorrected < totalLetters) {
           tile.evaluation = Evaluation.PRESENT;
+        } else {
+          tile.evaluation = Evaluation.ABSENT;
         }
+      } else {
+        tile.evaluation = Evaluation.ABSENT;
       }
 
       tile.status = Status.COMPLETED;
