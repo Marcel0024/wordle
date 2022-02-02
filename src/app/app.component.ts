@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
   }
 
   onDisplayKeyboardClick(letter: string): void {
-    if (letter === 'BACK') {
+    if (letter === 'BACKSPACE') {
       this.gameService.backspace();
     } else if (letter === 'ENTER') {
       this.gameService.enter();
