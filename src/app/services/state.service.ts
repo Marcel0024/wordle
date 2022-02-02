@@ -17,6 +17,7 @@ export class StateService {
 
   colorGold = '#b59f2b';
   colorGreen = '#538d3e';
+  colorGrey = '#3a3a3c';
 
   constructor() {}
 
@@ -126,10 +127,10 @@ export class StateService {
           tile.color = this.colorGold;
           tile.evaluation = Evaluation.PRESENT;
         } else {
-          tile.color = 'grey';
+          tile.color = this.colorGrey;
         }
       } else {
-        tile.color = 'grey';
+        tile.color = this.colorGrey;
       }
 
       tile.status = Status.CHECKED;
