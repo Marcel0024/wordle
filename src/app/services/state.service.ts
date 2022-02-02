@@ -9,6 +9,9 @@ export class StateService {
   grid!: Grid;
   word!: string;
 
+  wordsLength = 5;
+  tries = 6;
+
   gameFinished = false;
   gameFinishedMessage = ``;
 
@@ -22,10 +25,10 @@ export class StateService {
       rows: [],
     };
 
-    for (let indexRow = 0; indexRow < 6; indexRow++) {
+    for (let indexRow = 0; indexRow < this.tries; indexRow++) {
       const row = { tiles: [] as Tile[], status: Status.OPEN };
 
-      for (let tileRow = 0; tileRow < 6; tileRow++) {
+      for (let tileRow = 0; tileRow < this.wordsLength; tileRow++) {
         let tile: Tile = {
           letter: '',
           status: Status.OPEN,
@@ -78,12 +81,38 @@ export class StateService {
       return;
     }
 
+    const wordLetters = this.word.split('');
+
     row.tiles.forEach((tile, index) => {
       const letter = this.word[index];
       if (tile.letter === letter) {
         tile.color = 'green';
-      } else if (this.word.split('').includes(tile.letter)) {
-        tile.color = 'gold';
+        tile.status = Status.COMPLETED;
+      }
+    });
+
+    row.tiles.forEach((tile, index) => {
+      const currentLetter = this.word[index];
+      if (tile.letter === currentLetter) {
+        tile.color = 'green';
+      } else if (wordLetters.includes(tile.letter)) {
+        const totalLetters = wordLetters.filter(
+          (x) => x === tile.letter
+        ).length;
+
+        const totalLettersCorrected = row.tiles.filter(
+          (x) =>
+            x.letter === tile.letter &&
+            (x.color === 'green' || x.color === 'gold')
+        ).length;
+
+        if (tile.color === 'green') {
+          // do nothing
+        } else if (totalLettersCorrected < totalLetters) {
+          tile.color = 'gold';
+        } else {
+          tile.color = 'grey';
+        }
       } else {
         tile.color = 'grey';
       }
