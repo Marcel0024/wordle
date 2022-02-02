@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from './components/dialog/dialog.component';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
 import { GameStatus, Grid } from './interfaces/state';
 import { FoundLetter, GameService } from './services/game.service';
@@ -67,7 +68,12 @@ export class AppComponent implements OnInit {
 
     const word = this.gameService.getWord();
 
-    alert('E solution: ' + word);
+    this.dialog.open(DialogComponent, {
+      data: {
+        title: 'Game Over!',
+        text: `Lastima! E palabra tawata '${word}'. Purba bo suerte next time!`,
+      },
+    });
 
     this.gameService.init(true);
   }
