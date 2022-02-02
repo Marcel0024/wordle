@@ -15,7 +15,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
-
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 @NgModule({
   declarations: [
     AppComponent,
@@ -34,6 +34,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatDividerModule,
     MatDialogModule,
     MatIconModule,
+    MatSnackBarModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

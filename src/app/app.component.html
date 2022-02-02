@@ -20,17 +20,18 @@
       <mat-icon>refresh</mat-icon>
     </button>
   </div>
-  <div
-    fxLayoutAlign="center center"
-    fxLayout="column"
-    [ngStyle]="{
-      display: this.gameStatus !== gameStatusEnum.ONGOING ? '' : 'none'
-    }"
-  >
-    <span class="congrats">{{ this.gameService.gameFinishedMessage }}</span>
-    <div>
+  <div fxLayoutAlign="center center" fxLayout="column">
+    <div
+      fxLayoutGap="5px"
+      [ngStyle]="{
+        display: this.gameStatus !== gameStatusEnum.ONGOING ? '' : 'none'
+      }"
+    >
       <button mat-raised-button color="accent" (click)="startNewGame()">
         Palabra nobo <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-raised-button color="accent" (click)="copy()">
+        Copy results <mat-icon>share</mat-icon>
       </button>
     </div>
   </div>

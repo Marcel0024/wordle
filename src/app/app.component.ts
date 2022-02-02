@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
 import { GameStatus, Grid } from './interfaces/state';
@@ -20,7 +21,8 @@ export class AppComponent implements OnInit {
   constructor(
     public readonly gameService: GameService,
     public readonly stateService: StateService,
-    public readonly dialog: MatDialog
+    public readonly dialog: MatDialog,
+    private _snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -80,6 +82,12 @@ export class AppComponent implements OnInit {
 
   openInstructionsDialog(): void {
     this.dialog.open(IntroDialogComponent);
+  }
+
+  copy(): void {
+    navigator.clipboard.writeText(this.gameService.toCopyText());
+
+    this._snackBar.open('Copied to clipboard!');
   }
 
   keyboardRows = [

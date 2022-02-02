@@ -21,8 +21,6 @@ export class GameService {
   wordsLength = 5;
   tries = 6;
 
-  gameFinishedMessage = ``;
-
   gameStatus$ = new EventEmitter<GameStatus>();
   foundLetters$ = new EventEmitter<FoundLetter[]>();
 
@@ -178,7 +176,7 @@ export class GameService {
       this.dialog.open(DialogComponent, {
         data: {
           title: 'Pabien!  🎉🎉',
-          text: `Bo a rij e palabra den ${
+          text: `Bo a rij '${this.grid.word}' den ${
             this.grid.rows.filter((x) => x.status === Status.COMPLETED).length
           } biaha!`,
         },
@@ -246,6 +244,35 @@ export class GameService {
 
   getOpenRow(): Row {
     return this.grid.rows.filter((r) => r.status === Status.OPEN)[0];
+  }
+
+  toCopyText(): string {
+    const tries = this.grid.rows.filter(
+      (x) => x.status === Status.COMPLETED
+    ).length;
+
+    let string = `Papiamento Wordle ${tries}/${this.tries}\n\n`;
+
+    this.grid.rows
+      .filter((r) => r.status === Status.COMPLETED)
+      .forEach((row) => {
+        let rowString = '';
+        row.tiles.forEach((tile) => {
+          if (tile.evaluation == Evaluation.ABSENT) {
+            rowString += '⬛';
+          }
+          if (tile.evaluation == Evaluation.PRESENT) {
+            rowString += '🟨';
+          }
+          if (tile.evaluation == Evaluation.CORRECT) {
+            rowString += '🟩';
+          }
+        });
+
+        string += rowString + '\n';
+      });
+
+    return string;
   }
 
   getWord(): string {
