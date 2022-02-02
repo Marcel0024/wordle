@@ -2,9 +2,11 @@
   fxLayoutAlign="center center"
   [class.container]="!isLargeWord()"
   [class.large-container]="isLargeWord()"
+  [class.grid]="!isKeyboard"
   [style.background-color]="color"
   (click)="clicked()"
   [ngStyle]="{ cursor: isKeyboard ? 'pointer' : '' }"
+  fxFlex="4 4 0"
 >
   <span>
     {{ text }}

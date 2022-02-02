@@ -1,17 +1,37 @@
 .container {
-  width: 3em;
-  height: 3.5em;
+  width: 3.5em;
+  height: 4em;
   border: 2px solid grey;
 }
 
 .large-container {
-  width: 10em;
-  height: 3.5em;
+  width: 6.5em;
+  height: 4em;
   border: 2px solid grey;
 }
 
 span {
-  font-size: 1.5em;
+  font-size: 2em;
   color: white;
   background-color: transparent;
+}
+
+@media only screen and (max-width: 600px) {
+  .container {
+    width: 1.8em;
+    height: 2.8em;
+  }
+
+  .large-container {
+    width: 4em;
+    height: 2.5em;
+  }
+  span {
+    font-size: 1.2em;
+  }
+
+  .grid {
+    width: 4em;
+    height: 4em;
+  }
 }

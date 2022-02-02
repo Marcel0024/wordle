@@ -12,8 +12,8 @@ export class AppComponent {
     stateService.init();
   }
 
-  onDispalyKeyboardClick(letter: string): void {
-    if (letter === 'BACKSPACE') {
+  onDisplayKeyboardClick(letter: string): void {
+    if (letter === 'BACK') {
       this.stateService.backspace();
     } else if (letter === 'ENTER') {
       this.stateService.enter();
@@ -42,6 +42,6 @@ export class AppComponent {
   keyboardRows = [
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-    ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'Ñ', 'M', 'BACKSPACE'],
+    ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'Ñ', 'M', 'BACK'],
   ];
 }

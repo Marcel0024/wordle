@@ -1,27 +1,24 @@
-<div class="container" fxLayout="row" fxLayoutAlign="space-between center">
-  <div fxHide fxShow.gt-sm></div>
-  <div fxLayoutAlign="space-between center" fxLayout="column" class="container">
-    <span fxHide fxShow.gt-sm class="title">Papiamento Wordle</span>
-    <div fxHide fxShow.gt-sm></div>
-    <div
-      fxLayoutAlign="center center"
-      fxLayout="column"
-      [ngStyle]="{ display: this.stateService.gameFinished ? '' : 'none' }"
-    >
-      <span class="congrats">{{ this.stateService.gameFinishedMessage }}</span>
-      <div>
-        <button class="new-game-button" (click)="startNewGame()">
-          Palabra nobo
-        </button>
-      </div>
+<div fxLayoutAlign="space-around center" fxLayout="column" class="container">
+  <span class="title">Papiamento Wordle</span>
+  <div
+    fxLayoutAlign="center center"
+    fxLayout="column"
+    [ngStyle]="{ display: this.stateService.gameFinished ? '' : 'none' }"
+  >
+    <span class="congrats">{{ this.stateService.gameFinishedMessage }}</span>
+    <div>
+      <button mat-raised-button color="accent" (click)="startNewGame()">
+        Palabra nobo
+      </button>
     </div>
+  </div>
+  <div>
     <app-grid [rows]="stateService.grid.rows"></app-grid>
-    <div fxHide fxShow.gt-sm></div>
+  </div>
+  <div fxLayoutAlign="center end">
     <app-keyboard
-      style="width: auto"
       [rows]="keyboardRows"
-      (onClick)="onDispalyKeyboardClick($event)"
+      (onClick)="onDisplayKeyboardClick($event)"
     ></app-keyboard>
   </div>
-  <div fxHide fxShow.gt-sm></div>
 </div>
