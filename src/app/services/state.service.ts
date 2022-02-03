@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Grid } from '../interfaces/state';
+import { GameStatus, Grid } from '../interfaces/state';
 
 @Injectable({
   providedIn: 'root',
@@ -26,23 +26,34 @@ export class StateService {
 
   updateViewInstructions(viewed: boolean): void {
     this.state.user.viewedInstructions = viewed;
-    this.saveSettingsAndBroadcast();
+    this.saveSettingsToStorage();
   }
 
   updateGrid(grid: Grid): void {
     this.state.grid = grid;
-    this.saveSettingsAndBroadcast();
+    this.saveSettingsToStorage();
   }
 
-  updateGameStats(won: boolean): void {
+  updateGameStats(gameStatus: GameStatus, tries: number): void {
     this.state.user.totalGamesPlayed++;
 
-    if (won) {
+    if (gameStatus === GameStatus.WON) {
       this.state.user.totalGamesWon++;
-    } else {
+      let finished = this.state.user.finishedGames.find(
+        (x) => x.tries === tries
+      );
+      if (finished) {
+        finished.count++;
+      } else {
+        this.state.user.finishedGames.push({
+          tries: tries,
+          count: 1,
+        });
+      }
+    } else if (gameStatus === GameStatus.LOST) {
       this.state.user.totalGamesLost++;
     }
-    this.saveSettingsAndBroadcast();
+    this.saveSettingsToStorage();
   }
 
   getOrCreateState(): SettingsState {
@@ -69,13 +80,17 @@ export class StateService {
         totalGamesLost: 0,
         totalGamesPlayed: 0,
         totalGamesWon: 0,
+        finishedGames: [...Array(10).keys()].map((x) => ({
+          tries: x,
+          count: 0,
+        })),
       },
     };
 
-    this.saveSettingsAndBroadcast();
+    this.saveSettingsToStorage();
   }
 
-  private saveSettingsAndBroadcast(): void {
+  private saveSettingsToStorage(): void {
     localStorage.setItem(this.localStorageKey, JSON.stringify(this.state));
   }
 }
@@ -90,4 +105,9 @@ export interface UserSettings {
   totalGamesPlayed: number;
   totalGamesWon: number;
   totalGamesLost: number;
+  finishedGames: FinishedGame[];
+}
+export interface FinishedGame {
+  tries: number;
+  count: number;
 }

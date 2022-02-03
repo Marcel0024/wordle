@@ -228,7 +228,10 @@ export class GameService {
   finishGame(gameStatus: GameStatus): void {
     this.grid.gameStatus = gameStatus;
     this.stateService.updateGrid(this.grid);
-    this.stateService.updateGameStats(false);
+    this.stateService.updateGameStats(
+      gameStatus,
+      this.grid.rows.filter((x) => x.status === Status.COMPLETED).length
+    );
     this.gameStatus$.emit(this.stateService.getLatestState());
   }
 
