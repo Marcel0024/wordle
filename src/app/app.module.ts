@@ -17,6 +17,7 @@ import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.com
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { MatRippleModule } from '@angular/material/core';
     MatIconModule,
     MatSnackBarModule,
     MatRippleModule,
+    MatTableModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

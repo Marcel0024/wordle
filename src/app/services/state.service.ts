@@ -5,11 +5,15 @@ import { Grid } from '../interfaces/state';
   providedIn: 'root',
 })
 export class StateService {
-  localStorageKey: string = 'usersettings';
+  localStorageKey: string = 'usersettings2';
   private state!: SettingsState;
 
   constructor() {
     this.getOrCreateState();
+  }
+
+  getLatestState(): SettingsState {
+    return this.state;
   }
 
   getGrid(): Grid | undefined {
@@ -27,6 +31,17 @@ export class StateService {
 
   updateGrid(grid: Grid): void {
     this.state.grid = grid;
+    this.saveSettingsAndBroadcast();
+  }
+
+  updateGameStats(won: boolean): void {
+    this.state.user.totalGamesPlayed++;
+
+    if (won) {
+      this.state.user.totalGamesWon++;
+    } else {
+      this.state.user.totalGamesLost++;
+    }
     this.saveSettingsAndBroadcast();
   }
 
@@ -51,6 +66,9 @@ export class StateService {
       grid: undefined,
       user: {
         viewedInstructions: false,
+        totalGamesLost: 0,
+        totalGamesPlayed: 0,
+        totalGamesWon: 0,
       },
     };
 
@@ -69,4 +87,7 @@ export interface SettingsState {
 
 export interface UserSettings {
   viewedInstructions: boolean;
+  totalGamesPlayed: number;
+  totalGamesWon: number;
+  totalGamesLost: number;
 }

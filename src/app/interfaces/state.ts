@@ -6,6 +6,8 @@ export interface Grid {
   gameStatus: GameStatus;
   word: string;
   rows: Row[];
+  nextDay: number;
+  wordIndex: number;
 }
 
 export interface Row {

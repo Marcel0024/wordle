@@ -1,8 +1,56 @@
-<h2 mat-dialog-title>{{ data.title }}</h2>
-<mat-dialog-content class="mat-typography">
-  <p>
+<h2 mat-dialog-title align="center">{{ data.title }}</h2>
+<mat-dialog-content
+  class="mat-typography"
+  fxLayoutAlign="center center"
+  fxLayout="column"
+>
+  <p align="center">
     {{ data.text }}
   </p>
+  <div>
+    <table mat-table [dataSource]="tableSource()">
+      <caption>
+        Statistiek
+      </caption>
+      <ng-container matColumnDef="Hunga">
+        <th mat-header-cell *matHeaderCellDef>Hunga</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.totalGamesPlayed }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Gana">
+        <th mat-header-cell *matHeaderCellDef>Gana</th>
+        <td mat-cell *matCellDef="let element">{{ element.totalGamesWon }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="Perde">
+        <th mat-header-cell *matHeaderCellDef>Perde</th>
+        <td mat-cell *matCellDef="let element">{{ element.totalGamesLost }}</td>
+      </ng-container>
+
+      <tr
+        mat-header-row
+        *matHeaderRowDef="displayedColumns"
+        align="center"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        align="center"
+      ></tr>
+    </table>
+  </div>
+  <p *ngIf="this.data.nextDay" fxLayout="column" fxLayoutAlign="center center">
+    <span> Sigiente WORDLE den</span>
+    <span> {{ timeleft }}</span>
+  </p>
+
+  <div *ngIf="data.copyText">
+    <button mat-raised-button color="accent" (click)="copy()">
+      Copy results <mat-icon>share</mat-icon>
+    </button>
+  </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Ok</button>

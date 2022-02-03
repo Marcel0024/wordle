@@ -3,9 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
-import { GameStatus, Grid } from './interfaces/state';
+import { GameStatus, Grid, Status } from './interfaces/state';
 import { FoundLetter, GameService } from './services/game.service';
-import { StateService } from './services/state.service';
+import { SettingsState, StateService } from './services/state.service';
 
 @Component({
   selector: 'app-root',
@@ -13,16 +13,16 @@ import { StateService } from './services/state.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  gameStatus = GameStatus.ONGOING;
   gameStatusEnum = GameStatus;
 
   foundLetters: FoundLetter[] = [];
+  gameResults: SettingsState | undefined;
 
   constructor(
     public readonly gameService: GameService,
     public readonly stateService: StateService,
     public readonly dialog: MatDialog,
-    private _snackBar: MatSnackBar
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -31,9 +31,62 @@ export class AppComponent implements OnInit {
       this.openInstructionsDialog();
     }
 
-    this.gameService.gameStatus$.subscribe((x) => (this.gameStatus = x));
+    this.gameService.gameStatus$.subscribe((x) => this.processGameStatus(x));
     this.gameService.foundLetters$.subscribe((x) => (this.foundLetters = x));
     this.gameService.init();
+  }
+  processGameStatus(gameResults: SettingsState): void {
+    this.gameResults = gameResults;
+
+    this.showGameResultsPopup(false);
+  }
+
+  showGameResultsPopup(buttonPressed: boolean): void {
+    if (!this.gameResults?.grid) {
+      return;
+    }
+    let data: any = {
+      nextDay: this.gameResults.grid?.nextDay,
+      copyText: this.gameService.toCopyText(),
+      totalGamesPlayed: this.gameResults.user.totalGamesPlayed,
+      totalGamesWon: this.gameResults.user.totalGamesWon,
+      totalGamesLost: this.gameResults.user.totalGamesLost,
+    };
+
+    if (
+      this.gameResults.grid.gameStatus === GameStatus.ONGOING &&
+      buttonPressed
+    ) {
+      this.dialog.open(DialogComponent, {
+        data: {
+          ...data,
+          nextDay: undefined,
+          title: 'Stats',
+        },
+      });
+    }
+
+    if (this.gameResults.grid?.gameStatus === GameStatus.WON) {
+      this.dialog.open(DialogComponent, {
+        data: {
+          ...data,
+          title: 'Pabien!  🎉🎉',
+          text: `Bo a rij '${this.gameResults.grid.word}' den ${
+            this.gameResults.grid.rows.filter(
+              (x) => x.status === Status.COMPLETED
+            ).length
+          } biaha!`,
+        },
+      });
+    } else if (this.gameResults.grid?.gameStatus === GameStatus.LOST) {
+      this.dialog.open(DialogComponent, {
+        data: {
+          ...data,
+          title: 'Game Over!',
+          text: `Lastima! E palabra tawata '${this.gameResults.grid?.word}'. Purba bo suerte otro biaha!`,
+        },
+      });
+    }
   }
 
   onDisplayKeyboardClick(letter: string): void {
@@ -59,27 +112,6 @@ export class AppComponent implements OnInit {
     }
   }
 
-  startNewGame(): void {
-    this.gameService.init(true);
-  }
-
-  startNewGameWithPrompt(): void {
-    if (!confirm('Cuminsa cu un palabra nobo?')) {
-      return;
-    }
-
-    const word = this.gameService.getWord();
-
-    this.dialog.open(DialogComponent, {
-      data: {
-        title: 'Game Over!',
-        text: `Lastima! E palabra tawata '${word}'. Purba bo suerte next time!`,
-      },
-    });
-
-    this.gameService.init(true);
-  }
-
   openInstructionsDialog(): void {
     this.dialog.open(IntroDialogComponent);
   }
@@ -87,8 +119,9 @@ export class AppComponent implements OnInit {
   copy(): void {
     navigator.clipboard.writeText(this.gameService.toCopyText());
 
-    this._snackBar.open('Copied to clipboard!', undefined, {
+    this.snackBar.open('Copied to clipboard!', undefined, {
       duration: 2000,
+      verticalPosition: 'top',
     });
   }
 

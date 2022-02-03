@@ -1,7 +1,8 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { allwords } from 'words';
-import { DialogComponent } from '../components/dialog/dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { filter, interval, Subscription, tap } from 'rxjs';
+import { validGuesses } from 'validguesses';
+import { words as WORDS } from 'words';
 import {
   Evaluation,
   GameStatus,
@@ -10,7 +11,7 @@ import {
   Status,
   Tile,
 } from '../interfaces/state';
-import { StateService } from './state.service';
+import { SettingsState, StateService } from './state.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,44 +22,83 @@ export class GameService {
   wordsLength = 5;
   tries = 6;
 
-  gameStatus$ = new EventEmitter<GameStatus>();
+  nextDay: number = 0;
+
+  gameStatus$ = new EventEmitter<SettingsState>();
   foundLetters$ = new EventEmitter<FoundLetter[]>();
+
+  interval$: Subscription | undefined;
 
   constructor(
     private readonly stateService: StateService,
-    private readonly dialog: MatDialog
-  ) {}
+    private readonly snackBar: MatSnackBar
+  ) {
+    this.interval$ = interval(1000)
+      .pipe(
+        filter(() => this.grid?.nextDay - new Date().valueOf() < 0),
+        tap(() => this.init())
+      )
+      .subscribe();
+  }
 
-  init(force: boolean = false): void {
+  init(): void {
     let stateGrid = this.stateService.getGrid();
 
-    if (stateGrid && !force) {
+    if (stateGrid) {
+      // firsttime
       this.grid = stateGrid;
-    } else {
-      this.grid = {
-        gameStatus: GameStatus.ONGOING,
-        rows: [],
-        word: allwords[Math.floor(Math.random() * allwords.length)],
-      };
 
-      for (let indexRow = 0; indexRow < this.tries; indexRow++) {
-        const row = { tiles: [] as Tile[], status: Status.OPEN };
-
-        for (let tileRow = 0; tileRow < this.wordsLength; tileRow++) {
-          let tile: Tile = {
-            letter: '',
-            status: Status.OPEN,
-            evaluation: Evaluation.UNKNOWN,
-          };
-          row.tiles.push(tile);
+      if (this.grid.nextDay - new Date().valueOf() < 0) {
+        if (this.grid.gameStatus === GameStatus.ONGOING) {
+          this.finishGame(GameStatus.LOST);
         }
-
-        this.grid.rows.push(row);
+        this.createNewGame();
       }
-      this.stateService.updateGrid(this.grid);
+    } else {
+      this.createNewGame();
     }
     this.checkForFoundLeters();
-    this.gameStatus$.emit(this.grid.gameStatus);
+    this.gameStatus$.emit(this.stateService.getLatestState());
+  }
+
+  createNewGame() {
+    const todays = this.getTodaysWord();
+    this.grid = {
+      gameStatus: GameStatus.ONGOING,
+      rows: [],
+      word: todays.word,
+      nextDay: todays.nextDay,
+      wordIndex: todays.wordIndex,
+    };
+
+    for (let indexRow = 0; indexRow < this.tries; indexRow++) {
+      const row = { tiles: [] as Tile[], status: Status.OPEN };
+
+      for (let tileRow = 0; tileRow < this.wordsLength; tileRow++) {
+        let tile: Tile = {
+          letter: '',
+          status: Status.OPEN,
+          evaluation: Evaluation.UNKNOWN,
+        };
+        row.tiles.push(tile);
+      }
+
+      this.grid.rows.push(row);
+    }
+    this.stateService.updateGrid(this.grid);
+  }
+
+  getTodaysWord(): { word: string; nextDay: number; wordIndex: number } {
+    const epochMs = new Date(`February 2, 2022 00:00:00`).valueOf();
+    const now = Date.now();
+    const msInDay = 86400000;
+    const index = Math.floor((now - epochMs) / msInDay);
+    const nextDay = (index + 1) * msInDay + epochMs;
+    return {
+      word: WORDS[index % WORDS.length].toUpperCase(),
+      nextDay: nextDay,
+      wordIndex: index,
+    };
   }
 
   typeLetter(letter: string) {
@@ -83,6 +123,7 @@ export class GameService {
     if (!tile) {
       return;
     }
+
     tile.letter = '';
     tile.status = Status.OPEN;
     tile.evaluation = Evaluation.UNKNOWN;
@@ -104,22 +145,22 @@ export class GameService {
         .filter((r) => r.status === Status.COMPLETED)
         .some((r) => r.tiles.map((t) => t.letter).join('') === word)
     ) {
-      this.dialog.open(DialogComponent, {
-        data: {
-          title: 'Oeps!',
-          text: `'${word}' a wordo purba caba.`,
-        },
+      this.snackBar.open(`'${word}' a wordo purba caba.`, undefined, {
+        duration: 2000,
+        verticalPosition: 'top',
       });
       return;
     }
 
-    if (!allwords.includes(word)) {
-      this.dialog.open(DialogComponent, {
-        data: {
-          title: 'Oeps!',
-          text: `${word} no ta un palabra den Papiamento.`,
-        },
-      });
+    if (!WORDS.includes(word) && !validGuesses.includes(word)) {
+      this.snackBar.open(
+        `${word} no ta un palabra den Papiamento.`,
+        undefined,
+        {
+          duration: 2000,
+          verticalPosition: 'top',
+        }
+      );
       return;
     }
 
@@ -170,35 +211,23 @@ export class GameService {
         x.tiles.every((x) => x.evaluation === Evaluation.CORRECT)
       )
     ) {
-      this.grid.gameStatus = GameStatus.WON;
-      this.stateService.updateGrid(this.grid);
-      this.gameStatus$.emit(this.grid.gameStatus);
-      this.dialog.open(DialogComponent, {
-        data: {
-          title: 'Pabien!  🎉🎉',
-          text: `Bo a rij '${this.grid.word}' den ${
-            this.grid.rows.filter((x) => x.status === Status.COMPLETED).length
-          } biaha!`,
-        },
-      });
-      return;
+      this.finishGame(GameStatus.WON);
     }
 
     if (this.grid.rows.every((x) => x.status === Status.COMPLETED)) {
-      this.grid.gameStatus = GameStatus.LOST;
-      this.gameStatus$.emit(this.grid.gameStatus);
-      this.stateService.updateGrid(this.grid);
-      this.dialog.open(DialogComponent, {
-        data: {
-          title: 'Game Over!',
-          text: `Lastima! E palabra tawata '${this.grid.word}'. Purba bo suerte next time!`,
-        },
-      });
-      return;
+      this.finishGame(GameStatus.LOST);
     }
 
     this.stateService.updateGrid(this.grid);
   }
+
+  finishGame(gameStatus: GameStatus): void {
+    this.grid.gameStatus = gameStatus;
+    this.stateService.updateGrid(this.grid);
+    this.stateService.updateGameStats(false);
+    this.gameStatus$.emit(this.stateService.getLatestState());
+  }
+
   checkForFoundLeters() {
     let foundLetters: FoundLetter[] = [];
 
@@ -253,8 +282,8 @@ export class GameService {
       (x) => x.status === Status.COMPLETED
     ).length;
 
-    let string = `Papiamento Wordle ${tries}/${this.tries}\n\n`;
-
+    let string = `Papiamento Wordle\n`;
+    string += `${this.grid.wordIndex + 1} ${tries}/${this.tries}\n`;
     this.grid.rows
       .filter((r) => r.status === Status.COMPLETED)
       .forEach((row) => {
