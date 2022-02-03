@@ -23,6 +23,7 @@ export class DialogComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.data.nextDay) {
+      this.timeleft = this.getTimeDifference();
       this.countdown$ = interval(1000)
         .pipe(
           tap((_) => (this.timeleft = this.getTimeDifference())),
