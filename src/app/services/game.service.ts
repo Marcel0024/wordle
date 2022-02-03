@@ -216,9 +216,7 @@ export class GameService {
       )
     ) {
       this.finishGame(GameStatus.WON);
-    }
-
-    if (this.grid.rows.every((x) => x.status === Status.COMPLETED)) {
+    } else if (this.grid.rows.every((x) => x.status === Status.COMPLETED)) {
       this.finishGame(GameStatus.LOST);
     }
 
