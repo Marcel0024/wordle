@@ -1,16 +1,21 @@
 <div fxLayoutAlign="space-around center" fxLayout="column" class="container">
   <div
     fxLayoutAlign="space-around center"
-    fxLayoutAlign.gt-sm="center center"
+    fxLayoutAlign.gt-md="center center"
+    fxLayoutGap.gt-md="20px"
     fxLayout="row"
     [style.width]="'100%'"
   >
-    <button mat-icon-button color="accent" (click)="openInstructionsDialog()">
-      ?
+    <button mat-icon-button (click)="openInstructionsDialog()">
+      <mat-icon class="icon-button">help_outline</mat-icon>
     </button>
-    <span class="title">Papiamento Wordle</span>
-    <button mat-icon-button color="accent" (click)="showGameResultsPopup(true)">
-      <mat-icon class="white">info</mat-icon>
+    <span class="title" fxAlign="center">Papiamento Wordle</span>
+    <button
+      mat-icon-button
+      (click)="showGameResultsPopup(true)"
+      class="icon-button"
+    >
+      <mat-icon>info_outline</mat-icon>
     </button>
   </div>
   <div fxLayoutAlign="center center" fxLayout="column">
@@ -23,7 +28,12 @@
             : 'none'
       }"
     >
-      <button mat-raised-button color="accent" (click)="copy()">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="copy()"
+        class="copy-button"
+      >
         Copy results <mat-icon>share</mat-icon>
       </button>
     </div>

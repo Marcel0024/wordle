@@ -56,10 +56,7 @@ export class DialogComponent implements OnInit {
   copy(): void {
     navigator.clipboard.writeText(this.data.copyText);
 
-    this.snackBar.open('Copied to clipboard!', undefined, {
-      duration: 2000,
-      verticalPosition: 'top',
-    });
+    this.snackBar.open('Copied to clipboard!');
   }
 
   tableSource(): any[] {

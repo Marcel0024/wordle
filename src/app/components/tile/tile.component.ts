@@ -7,7 +7,7 @@ import { Evaluation, Tile } from 'src/app/interfaces/state';
   styleUrls: ['./tile.component.scss'],
 })
 export class TileComponent implements OnInit {
-  colorGold = '#b59f2b';
+  colorGold = '#b59f3b';
   colorGreen = '#538d3e';
   colorGrey = '#3a3a3c';
 

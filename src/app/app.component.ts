@@ -119,10 +119,7 @@ export class AppComponent implements OnInit {
   copy(): void {
     navigator.clipboard.writeText(this.gameService.toCopyText());
 
-    this.snackBar.open('Copied to clipboard!', undefined, {
-      duration: 2000,
-      verticalPosition: 'top',
-    });
+    this.snackBar.open('Copied to clipboard!');
   }
 
   keyboardRows = [

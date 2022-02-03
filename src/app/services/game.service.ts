@@ -149,22 +149,12 @@ export class GameService {
         .filter((r) => r.status === Status.COMPLETED)
         .some((r) => r.tiles.map((t) => t.letter).join('') === word)
     ) {
-      this.snackBar.open(`'${word}' a wordo purba caba.`, undefined, {
-        duration: 2000,
-        verticalPosition: 'top',
-      });
+      this.snackBar.open(`'${word}' a wordo purba caba.`);
       return;
     }
 
     if (!WORDS.includes(word) && !validGuesses.includes(word)) {
-      this.snackBar.open(
-        `${word} no ta un palabra den Papiamento.`,
-        undefined,
-        {
-          duration: 2000,
-          verticalPosition: 'top',
-        }
-      );
+      this.snackBar.open(`'${word}' no ta un palabra den Papiamento.`);
       return;
     }
 
