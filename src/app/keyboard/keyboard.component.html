@@ -9,6 +9,7 @@
       *ngFor="let tile of row"
       [text]="tile"
       [isKeyboard]="true"
+      [disabled]="disabled"
       [evaluation]="getEvaluation(tile)"
       (onClick)="letterClicked($event)"
     >

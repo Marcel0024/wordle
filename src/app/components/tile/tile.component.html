@@ -1,16 +1,17 @@
 <div
   fxLayoutAlign="center center"
   class="tile"
+  [class.fade]="disabled"
   [class.container]="!isLargeWord()"
   [class.large-container]="isLargeWord()"
   [class.grid]="!isKeyboard"
   [style.background-color]="getColor()"
   (click)="clicked()"
-  [ngStyle]="{ cursor: isKeyboard ? 'pointer' : '' }"
+  [ngStyle]="{ cursor: isKeyboard && !disabled ? 'pointer' : '' }"
   fxFlex="4 4 0"
   matRipple
   [matRippleCentered]="true"
-  [matRippleDisabled]="!isKeyboard"
+  [matRippleDisabled]="!isKeyboard || disabled"
 >
   <span>
     {{ text }}

@@ -34,6 +34,7 @@
   <div fxLayoutAlign="center end">
     <app-keyboard
       [rows]="keyboardRows"
+      [disabled]="this.gameResults?.grid?.gameStatus !== gameStatusEnum.ONGOING"
       [foundLetters]="foundLetters"
       (onClick)="onDisplayKeyboardClick($event)"
     ></app-keyboard>

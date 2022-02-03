@@ -14,6 +14,7 @@ export class TileComponent implements OnInit {
   @Input() text!: string;
   @Input() evaluation!: Evaluation | undefined;
   @Input() isKeyboard = false;
+  @Input() disabled = false;
 
   @Output() onClick = new EventEmitter<string>();
 

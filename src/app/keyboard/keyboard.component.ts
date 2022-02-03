@@ -10,6 +10,7 @@ import { FoundLetter } from '../services/game.service';
 export class KeyboardComponent implements OnInit {
   @Input() rows!: string[][];
   @Input() foundLetters: FoundLetter[] = [];
+  @Input() disabled: boolean = false;
 
   @Output() onClick = new EventEmitter<string>();
 
@@ -18,7 +19,9 @@ export class KeyboardComponent implements OnInit {
   ngOnInit(): void {}
 
   letterClicked(letter: string): void {
-    this.onClick.emit(letter);
+    if (!this.disabled) {
+      this.onClick.emit(letter);
+    }
   }
 
   getEvaluation(letter: string): Evaluation | undefined {
