@@ -109,6 +109,10 @@ export class GameService {
       return;
     }
 
+    if (this.grid.gameStatus !== GameStatus.ONGOING) {
+      return;
+    }
+
     tile.letter = letter;
     tile.status = Status.FILLED;
     tile.evaluation = Evaluation.UNKNOWN;
