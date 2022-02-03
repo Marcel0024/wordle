@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
-import { GameStatus, Grid, Status } from './interfaces/state';
+import { GameStatus, Status } from './interfaces/state';
 import { FoundLetter, GameService } from './services/game.service';
 import { SettingsState, StateService } from './services/state.service';
 
