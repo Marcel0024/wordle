@@ -5,6 +5,7 @@
   [class.container]="!isLargeWord()"
   [class.large-container]="isLargeWord()"
   [class.grid]="!isKeyboard"
+  [class.keyboard]="isKeyboard"
   [style.background-color]="getColor()"
   (click)="clicked()"
   [ngStyle]="{ cursor: isKeyboard && !disabled ? 'pointer' : '' }"

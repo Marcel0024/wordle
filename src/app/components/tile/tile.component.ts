@@ -40,7 +40,7 @@ export class TileComponent implements OnInit {
       case Evaluation.UNKNOWN:
         return 'transparent';
       default:
-        return 'grey';
+        return 'rgb(109, 109, 109)';
     }
   }
 }
