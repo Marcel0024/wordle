@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Evaluation, Tile } from 'src/app/interfaces/state';
+import { Evaluation } from 'src/app/interfaces/state';
 
 @Component({
   selector: 'app-tile',

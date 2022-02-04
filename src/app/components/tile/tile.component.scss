@@ -3,13 +3,13 @@
 }
 
 .container {
-  width: 3.5em;
+  width: 4.5em;
   height: 4em;
   border: 2px solid rgb(109, 109, 109);
 }
 
 .large-container {
-  width: 13em;
+  width: 14em;
   height: 4em;
   border: 2px solid rgb(109, 109, 109);
 }
@@ -28,6 +28,10 @@ span {
   border-radius: 6px;
 }
 
+.not-keyboard {
+  font-weight: 600;
+}
+
 @media only screen and (max-width: 600px) {
   .container {
     width: 2.2em;
@@ -35,15 +39,15 @@ span {
   }
 
   .large-container {
-    width: 8em;
+    width: 9em;
     height: 3em;
   }
   span {
-    font-size: 1.2em;
+    font-size: 1.4em;
   }
 
-  .grid {
-    width: 4em;
-    height: 4em;
+  .not-keyboard {
+    width: 4.2em;
+    height: 4.2em;
   }
 }

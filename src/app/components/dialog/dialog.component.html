@@ -3,6 +3,7 @@
   <p align="center" class="enfisis">
     {{ data.text }}
   </p>
+  <mat-divider></mat-divider>
   <div>
     <table mat-table [dataSource]="tableSource()" class="mat-elevation-z2">
       <ng-container matColumnDef="Hunga">
@@ -34,6 +35,7 @@
       ></tr>
     </table>
   </div>
+  <mat-divider></mat-divider>
   <p
     *ngIf="this.data.nextDay"
     fxLayout="column"

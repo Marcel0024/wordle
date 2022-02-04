@@ -1,7 +1,7 @@
 <div fxLayoutAlign="space-around center" fxLayout="column" class="container">
   <div
     fxLayoutAlign="space-around center"
-    fxLayoutAlign.gt-md="center center"
+    fxLayoutAlign.gt-sm="center center"
     fxLayoutGap.gt-md="20px"
     fxLayout="row"
     [style.width]="'100%'"
@@ -33,6 +33,7 @@
         color="primary"
         (click)="copy()"
         class="copy-button"
+        fxHide.lt-sm
       >
         Copy results <mat-icon>share</mat-icon>
       </button>
