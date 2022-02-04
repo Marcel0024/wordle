@@ -37,6 +37,10 @@ export class StateService {
   updateGameStats(gameStatus: GameStatus, tries: number): void {
     this.state.user.totalGamesPlayed++;
 
+    if (this.state.user.finishedGames === undefined) {
+      this.state.user.finishedGames = [];
+    }
+
     if (gameStatus === GameStatus.WON) {
       this.state.user.totalGamesWon++;
       let finished = this.state.user.finishedGames.find(
