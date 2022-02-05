@@ -27,7 +27,7 @@ export class DialogComponent implements OnInit {
       this.countdown$ = interval(1000)
         .pipe(
           tap((_) => (this.timeleft = this.getTimeDifference())),
-          filter((_) => this.data.nextDay - new Date().valueOf() < 0),
+          filter((_) => this.data.nextDay - new Date().valueOf() <= 0),
           tap((_) => this.dialogRef.close())
         )
         .subscribe();
