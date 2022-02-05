@@ -278,7 +278,7 @@ export class GameService {
     ).length;
 
     let string = `Papiamento Wordle\n`;
-    string += `${tries}/${this.tries} ${this.grid.wordIndex + 1}\n`;
+    string += `${tries}/${this.tries} ${this.grid.wordIndex + 1}\n\n`;
     this.grid.rows
       .filter((r) => r.status === Status.COMPLETED)
       .forEach((row) => {
