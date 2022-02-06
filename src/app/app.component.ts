@@ -81,7 +81,7 @@ export class AppComponent implements OnInit {
       this.dialog.open(DialogComponent, {
         data: {
           ...data,
-          title: 'Game Over',
+          title: '😥 Game Over 😥',
           text: `Lastima! Purba bo suerte otro biaha!`,
         },
       });
