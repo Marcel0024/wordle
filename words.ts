@@ -1,5 +1,5 @@
 export const words: string[] = [
-  'WELGA',
+  '',
   'KISAS',
   'SIGUR',
   'FAMIA', // diasabra
@@ -25,6 +25,7 @@ export const words: string[] = [
   'STOKI',
   'FLOHO',
   'CUEBA',
+  'WELGA',
   'TARDA',
   'SINTI',
   'LANDA',
