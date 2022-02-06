@@ -1,16 +1,16 @@
 <h2 mat-dialog-title>CON PA HUNGA</h2>
 <mat-dialog-content class="mat-typography">
-  <p>Rij e WORDLE den 6 biaha.</p>
+  <p>Rij e WORDLE den 6 biaha. Tin un palabara nobo tur dia.</p>
   <p>
     Kada chens mester ta un palabara valido di 5 letter. Primi enter pa submit e
     palabara.
   </p>
   <p>
-    Despue di kada palabra, e color di e letter ta cambia a base di con serca bo
-    a guess.
+    Despue di purba un palabra e color di e letter ta cambia a base di con serca
+    bo a rij.
   </p>
   <mat-divider></mat-divider>
-  <h3>Examples</h3>
+  <h3>Ehempel</h3>
   <div fxLayout="row" fxLayoutGap="5px">
     <app-tile
       [isKeyboard]="true"
@@ -66,10 +66,9 @@
       [evaluation]="evaluation.ABSENT"
     ></app-tile>
   </div>
-  <p>E letter R ta den e palabra pero no den e position corecto.</p>
+  <p>E letter R ta den e palabra pero no ta den e position corecto.</p>
   <mat-divider></mat-divider>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancel</button>
   <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Ok</button>
 </mat-dialog-actions>

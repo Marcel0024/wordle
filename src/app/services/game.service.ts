@@ -207,6 +207,9 @@ export class GameService {
     ) {
       this.finishGame(GameStatus.WON);
     } else if (this.grid.rows.every((x) => x.status === Status.COMPLETED)) {
+      this.snackBar.open(`'${this.grid?.word}'`, undefined, {
+        duration: 5000,
+      });
       this.finishGame(GameStatus.LOST);
     }
 

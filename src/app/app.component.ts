@@ -67,23 +67,22 @@ export class AppComponent implements OnInit {
     }
 
     if (this.gameResults.grid?.gameStatus === GameStatus.WON) {
+      const totalTries = this.gameResults.grid.rows.filter(
+        (x) => x.status === Status.COMPLETED
+      ).length;
       this.dialog.open(DialogComponent, {
         data: {
           ...data,
-          title: 'Pabien!  🎉🎉',
-          text: `Bo a rij '${this.gameResults.grid.word}' den ${
-            this.gameResults.grid.rows.filter(
-              (x) => x.status === Status.COMPLETED
-            ).length
-          } biaha!`,
+          title: '🎉 Pabien!  🎉',
+          text: `Bo a rij e palabra den ${totalTries} biaha!`,
         },
       });
     } else if (this.gameResults.grid?.gameStatus === GameStatus.LOST) {
       this.dialog.open(DialogComponent, {
         data: {
           ...data,
-          title: 'Game Over!',
-          text: `Lastima! E palabra tawata '${this.gameResults.grid?.word}'. Purba bo suerte otro biaha!`,
+          title: 'Game Over',
+          text: `Lastima! Purba bo suerte otro biaha!`,
         },
       });
     }

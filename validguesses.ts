@@ -518,6 +518,7 @@ export const validGuesses = [
   'FLUSH',
   'FLYER',
   'FOBIA',
+  'FOBOR',
   'FOGON',
   'FOLIO',
   'FONDA',
