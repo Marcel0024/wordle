@@ -1,0 +1,17 @@
+<div
+  fxLayoutAlign="center center"
+  class="tile"
+  [class.container]="!isLargeWord()"
+  [class.large-container]="isLargeWord()"
+  (click)="clicked()"
+  [style.background-color]="getColor()"
+  [ngStyle]="{ cursor: !disabled ? 'pointer' : '' }"
+  fxFlex="4 4 0"
+  matRipple
+  [matRippleCentered]="true"
+  [matRippleDisabled]="disabled"
+>
+  <span>
+    {{ text }}
+  </span>
+</div>

@@ -31,6 +31,7 @@ export class StateService {
 
   updateGrid(grid: Grid): void {
     this.state.grid = grid;
+    this.state.currentGame = grid;
     this.saveSettingsToStorage();
   }
 
@@ -79,6 +80,7 @@ export class StateService {
   private createDefaultSettings(): void {
     this.state = {
       grid: undefined,
+      currentGame: undefined,
       user: {
         viewedInstructions: false,
         totalGamesLost: 0,
@@ -101,6 +103,7 @@ export class StateService {
 
 export interface SettingsState {
   grid: Grid | undefined;
+  currentGame: Grid | undefined;
   user: UserSettings;
 }
 

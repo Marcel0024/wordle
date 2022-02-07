@@ -1,10 +1,74 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { Evaluation } from 'src/app/interfaces/state';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+} from '@angular/animations';
 
 @Component({
   selector: 'app-tile',
   templateUrl: './tile.component.html',
   styleUrls: ['./tile.component.scss'],
+  animations: [
+    trigger('cardFlip', [
+      state(
+        Evaluation.UNKNOWN,
+        style({
+          'background-color': 'transparent',
+        })
+      ),
+      state(
+        Evaluation.ABSENT,
+        style({
+          'background-color': '#3a3a3c',
+        })
+      ),
+      state(
+        Evaluation.PRESENT,
+        style({
+          'background-color': '#b59f3b',
+        })
+      ),
+      state(
+        Evaluation.CORRECT,
+        style({
+          'background-color': '#538d3e',
+        })
+      ),
+      transition(`${Evaluation.UNKNOWN} => ${Evaluation.PRESENT}`, [
+        animate(200, style({ transform: 'rotateY(90deg)' })),
+        style({
+          'background-color': '#b59f3b',
+        }),
+        animate(200, style({ transform: 'rotateY(0deg)' })),
+      ]),
+      transition(`${Evaluation.UNKNOWN} => ${Evaluation.ABSENT}`, [
+        animate(200, style({ transform: 'rotateY(90deg)' })),
+        style({
+          'background-color': '#3a3a3c',
+        }),
+        animate(200, style({ transform: 'rotateY(0deg)' })),
+      ]),
+      transition(`${Evaluation.UNKNOWN} => ${Evaluation.CORRECT}`, [
+        animate(200, style({ transform: 'rotateY(90deg)' })),
+        style({
+          'background-color': '#538d3e',
+        }),
+        animate(200, style({ transform: 'rotateY(0deg)' })),
+      ]),
+    ]),
+  ],
 })
 export class TileComponent implements OnInit {
   colorGold = '#b59f3b';
@@ -12,9 +76,7 @@ export class TileComponent implements OnInit {
   colorGrey = '#3a3a3c';
 
   @Input() text!: string;
-  @Input() evaluation!: Evaluation | undefined;
-  @Input() isKeyboard = false;
-  @Input() disabled = false;
+  @Input() evaluation: Evaluation | undefined;
 
   @Output() onClick = new EventEmitter<string>();
 
@@ -26,9 +88,6 @@ export class TileComponent implements OnInit {
     this.onClick.emit(this.text);
   }
 
-  isLargeWord(): boolean {
-    return this.text.length > 2;
-  }
   getColor(): string {
     switch (this.evaluation) {
       case Evaluation.CORRECT:

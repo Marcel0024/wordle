@@ -1,6 +1,19 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { filter, interval, Subscription, tap } from 'rxjs';
+import {
+  delay,
+  filter,
+  flatMap,
+  interval,
+  map,
+  mergeAll,
+  of,
+  Subscription,
+  take,
+  takeUntil,
+  tap,
+  toArray,
+} from 'rxjs';
 import { validGuesses } from 'validguesses';
 import { words as WORDS } from 'words';
 import {
@@ -57,7 +70,7 @@ export class GameService {
     } else {
       this.createNewGame();
     }
-    this.checkForFoundLeters();
+    this.broadcastFoundLetters();
     this.gameStatus$.emit(this.stateService.getLatestState());
   }
 
@@ -103,6 +116,11 @@ export class GameService {
 
   typeLetter(letter: string) {
     let row = this.getOpenRow();
+
+    if (!row) {
+      return; // Game is over
+    }
+
     let tile = row.tiles.filter((r) => r.status === Status.OPEN)[0];
 
     if (!tile) {
@@ -122,15 +140,22 @@ export class GameService {
 
   backspace(): void {
     let row = this.getOpenRow();
-    let tile = row.tiles.filter((r) => r.status === Status.FILLED).slice(-1)[0];
 
-    if (!tile) {
+    if (!row) {
+      return; // Game is over
+    }
+
+    let previousTile = row.tiles
+      .filter((r) => r.status === Status.FILLED)
+      .slice(-1)[0];
+
+    if (!previousTile) {
       return;
     }
 
-    tile.letter = '';
-    tile.status = Status.OPEN;
-    tile.evaluation = Evaluation.UNKNOWN;
+    previousTile.letter = '';
+    previousTile.status = Status.OPEN;
+    previousTile.evaluation = Evaluation.UNKNOWN;
 
     this.stateService.updateGrid(this.grid);
   }
@@ -138,135 +163,148 @@ export class GameService {
   enter(): void {
     let row = this.getOpenRow();
 
-    if (!row.tiles.every((x) => x.status === Status.FILLED)) {
+    if (!row) {
+      return; // Game is over
+    }
+
+    const guessWord = row.tiles.map((x) => x.letter).join('');
+    const solutionWord = this.getSolutionWord();
+
+    if (!this.canEnterWord(row, guessWord)) {
       return;
     }
 
-    const word = row.tiles.map((x) => x.letter).join('');
+    const evaluations = this.getEvaluations(guessWord, solutionWord);
 
-    if (
-      this.grid.rows
-        .filter((r) => r.status === Status.COMPLETED)
-        .some((r) => r.tiles.map((t) => t.letter).join('') === word)
-    ) {
-      this.snackBar.open(`'${word}' a wordo purba caba.`);
-      return;
-    }
+    interval(300) // interval for animation
+      .pipe(
+        take(this.tries - 1),
+        map((index) => (row.tiles[index].evaluation = evaluations[index])), // set the evaluation
+        toArray(),
+        tap(() => (row.status = Status.COMPLETED)),
+        delay(500),
+        tap(() => this.broadcastFoundLetters()), // update keyboard
+        tap(() => this.finishGameIfNecessary()) // if finish display popup
+      )
+      .subscribe(() => this.stateService.updateGrid(this.grid)); // save
+  }
 
-    if (!WORDS.includes(word) && !validGuesses.includes(word)) {
-      this.snackBar.open(`'${word}' no ta un palabra den Papiamento.`);
-      return;
-    }
+  getEvaluations(guess: string, solution: string): Evaluation[] {
+    const splitSolution = solution.split('');
+    const splitGuess = guess.split('');
 
-    const wordLetters = this.grid.word.split('');
+    const statuses: Evaluation[] = Array.from(Array(guess.length));
+    const solutionCharsTaken = statuses.map(() => false);
 
-    row.tiles.forEach((tile, index) => {
-      const letter = this.grid.word[index];
-      if (tile.letter === letter) {
-        tile.status = Status.COMPLETED;
-        tile.evaluation = Evaluation.CORRECT;
+    splitGuess.forEach((letter, index) => {
+      if (letter === splitSolution[index]) {
+        statuses[index] = Evaluation.CORRECT;
+        solutionCharsTaken[index] = true;
       }
     });
 
-    row.tiles.forEach((tile, index) => {
-      const currentLetter = this.grid.word[index];
-      if (tile.letter === currentLetter) {
-        tile.evaluation = Evaluation.CORRECT;
-      } else if (wordLetters.includes(tile.letter)) {
-        const totalLetters = wordLetters.filter(
-          (x) => x === tile.letter
-        ).length;
+    splitGuess.forEach((letter, i) => {
+      if (statuses[i]) return;
 
-        const totalLettersCorrected = row.tiles.filter(
-          (x) =>
-            x.letter === tile.letter &&
-            (x.evaluation === Evaluation.CORRECT ||
-              x.evaluation === Evaluation.PRESENT)
-        ).length;
+      if (!splitSolution.includes(letter)) {
+        // handles the absent case
+        statuses[i] = Evaluation.ABSENT;
+        return;
+      }
 
-        if (totalLettersCorrected < totalLetters) {
-          tile.evaluation = Evaluation.PRESENT;
-        } else {
-          tile.evaluation = Evaluation.ABSENT;
-        }
+      // now we are left with "present"s
+      const indexOfPresentChar = splitSolution.findIndex(
+        (x, index) => x === letter && !solutionCharsTaken[index]
+      );
+
+      if (indexOfPresentChar > -1) {
+        statuses[i] = Evaluation.PRESENT;
+        solutionCharsTaken[indexOfPresentChar] = true;
+        return;
       } else {
-        tile.evaluation = Evaluation.ABSENT;
+        statuses[i] = Evaluation.ABSENT;
+        return;
       }
-
-      tile.status = Status.COMPLETED;
     });
 
-    row.status = Status.COMPLETED;
+    return statuses;
+  }
 
-    this.checkForFoundLeters();
-
+  finishGameIfNecessary(): boolean {
     if (
       this.grid.rows.some((x) =>
         x.tiles.every((x) => x.evaluation === Evaluation.CORRECT)
       )
     ) {
       this.finishGame(GameStatus.WON);
+      return true;
     } else if (this.grid.rows.every((x) => x.status === Status.COMPLETED)) {
       this.snackBar.open(`'${this.grid?.word}'`, undefined, {
         duration: 5000,
       });
       this.finishGame(GameStatus.LOST);
+      return true;
     }
 
-    this.stateService.updateGrid(this.grid);
+    return false;
+  }
+
+  canEnterWord(currentRow: Row, guessWord: string): boolean {
+    if (!currentRow.tiles.every((x) => x.status === Status.FILLED)) {
+      return false;
+    }
+
+    if (
+      this.grid.rows
+        .filter((r) => r.status === Status.COMPLETED)
+        .some((r) => r.tiles.map((t) => t.letter).join('') === guessWord)
+    ) {
+      this.snackBar.open(`'${guessWord}' a wordo purba caba.`);
+      return false;
+    }
+
+    if (!WORDS.includes(guessWord) && !validGuesses.includes(guessWord)) {
+      this.snackBar.open(`'${guessWord}' no ta un palabra den Papiamento.`);
+      return false;
+    }
+
+    return true;
   }
 
   finishGame(gameStatus: GameStatus): void {
     this.grid.gameStatus = gameStatus;
     this.stateService.updateGrid(this.grid);
-    this.stateService.updateGameStats(
-      gameStatus,
-      this.grid.rows.filter((x) => x.status === Status.COMPLETED).length
-    );
+    this.stateService.updateGameStats(gameStatus, this.getTotalGuesses());
     this.gameStatus$.emit(this.stateService.getLatestState());
   }
 
-  checkForFoundLeters() {
-    let foundLetters: FoundLetter[] = [];
+  getTotalGuesses(): number {
+    return this.grid.rows.filter((x) => x.status === Status.COMPLETED).length;
+  }
 
-    this.grid.rows
-      .filter((r) => r.status === Status.COMPLETED)
-      .forEach((row) => {
-        row.tiles.forEach((tile) => {
-          if (tile.evaluation == Evaluation.ABSENT) {
-            if (!foundLetters.some((fl) => fl.letter === tile.letter)) {
-              foundLetters.push({
-                letter: tile.letter,
-                evaluation: Evaluation.ABSENT,
-              });
-            }
+  broadcastFoundLetters(): void {
+    const foundLetters: FoundLetter[] = [];
+
+    this.grid.rows.forEach((row) =>
+      row.tiles.map((t) => {
+        let foundLetter = foundLetters.find((x) => x.letter === t.letter);
+
+        if (foundLetter) {
+          if (
+            foundLetter.evaluation === Evaluation.ABSENT ||
+            (foundLetter.evaluation === Evaluation.PRESENT &&
+              t.evaluation === Evaluation.CORRECT)
+          ) {
+            foundLetter.evaluation = t.evaluation;
           }
-          if (tile.evaluation == Evaluation.PRESENT) {
-            let letter = foundLetters.find((fl) => fl.letter === tile.letter);
-            if (!letter) {
-              foundLetters.push({
-                letter: tile.letter,
-                evaluation: Evaluation.PRESENT,
-              });
-            } else {
-              if (letter.evaluation !== Evaluation.CORRECT) {
-                letter.evaluation = Evaluation.PRESENT;
-              }
-            }
-          }
-          if (tile.evaluation == Evaluation.CORRECT) {
-            let letter = foundLetters.find((fl) => fl.letter === tile.letter);
-            if (!letter) {
-              foundLetters.push({
-                letter: tile.letter,
-                evaluation: Evaluation.CORRECT,
-              });
-            } else {
-              letter.evaluation = Evaluation.CORRECT;
-            }
-          }
-        });
-      });
+        } else {
+          foundLetters.push({
+            letter: t.letter,
+            evaluation: t.evaluation,
+          });
+        }
+      })
+    );
 
     this.foundLetters$.emit(foundLetters);
   }
@@ -276,12 +314,10 @@ export class GameService {
   }
 
   toCopyText(): string {
-    const tries = this.grid.rows.filter(
-      (x) => x.status === Status.COMPLETED
-    ).length;
-
     let string = `Papiamento Wordle\n`;
-    string += `${tries}/${this.tries} ${this.grid.wordIndex + 1}\n\n`;
+    string += `${this.getTotalGuesses()}/${this.tries} ${
+      this.grid.wordIndex + 1
+    }\n\n`;
     this.grid.rows
       .filter((r) => r.status === Status.COMPLETED)
       .forEach((row) => {
@@ -304,7 +340,7 @@ export class GameService {
     return string;
   }
 
-  getWord(): string {
+  getSolutionWord(): string {
     return this.grid.word;
   }
 }

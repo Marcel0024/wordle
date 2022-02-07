@@ -1,7 +1,3 @@
-export interface State {
-  grid: Grid;
-}
-
 export interface Grid {
   gameStatus: GameStatus;
   word: string;

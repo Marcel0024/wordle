@@ -19,6 +19,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
+import { KeyboardTileComponent } from './keyboard/keyboard-tile/keyboard-tile.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
     RowComponent,
     GridComponent,
     TileComponent,
+    KeyboardTileComponent,
     DialogComponent,
     IntroDialogComponent,
   ],

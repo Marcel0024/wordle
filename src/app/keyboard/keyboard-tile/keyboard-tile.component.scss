@@ -1,6 +1,6 @@
 .tile {
   user-select: none;
-  font-weight: 600;
+  border-radius: 6px;
 }
 
 .container {
@@ -21,8 +21,8 @@ span {
   background-color: transparent;
 }
 
-.keyboard {
-  border-radius: 6px;
+.fade {
+  opacity: 0.6;
 }
 
 @media only screen and (max-width: 600px) {
@@ -37,10 +37,5 @@ span {
   }
   span {
     font-size: 1.4em;
-  }
-
-  .tile {
-    width: 4.2em;
-    height: 4.2em;
   }
 }
