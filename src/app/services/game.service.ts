@@ -232,7 +232,7 @@ export class GameService {
         this.busy = false;
         if (guessWord === 'PATIN') {
           // easter egg
-          this.snackBar.open('ayy 😂', undefined, { duration: 4000 });
+          this.snackBar.open('ayy 😂', undefined, { duration: 3000 });
           setTimeout(() => this.broadastGridChange(), 3000);
         }
       });
