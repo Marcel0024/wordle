@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Row } from '../interfaces/state';
 
 @Component({
@@ -6,10 +6,6 @@ import { Row } from '../interfaces/state';
   templateUrl: './grid.component.html',
   styleUrls: ['./grid.component.scss'],
 })
-export class GridComponent implements OnInit {
+export class GridComponent {
   @Input() rows!: Row[];
-
-  constructor() {}
-
-  ngOnInit(): void {}
 }

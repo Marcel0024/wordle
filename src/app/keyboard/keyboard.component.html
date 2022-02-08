@@ -5,14 +5,13 @@
     fxLayoutAlign="space-around center"
     fxLayoutGap="5px"
   >
-    <app-tile
+    <app-keyboard-tile
       *ngFor="let tile of row"
       [text]="tile"
-      [isKeyboard]="true"
       [disabled]="disabled"
       [evaluation]="getEvaluation(tile)"
       (onClick)="letterClicked($event)"
     >
-    </app-tile>
+    </app-keyboard-tile>
   </div>
 </div>

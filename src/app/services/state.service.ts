@@ -16,7 +16,7 @@ export class StateService {
     return this.state;
   }
 
-  getGrid(): Grid | undefined {
+  getCurrentGame(): Grid | undefined {
     return this.state.grid;
   }
 
@@ -29,8 +29,9 @@ export class StateService {
     this.saveSettingsToStorage();
   }
 
-  updateGrid(grid: Grid): void {
+  save(grid: Grid): void {
     this.state.grid = grid;
+    this.state.currentGame = grid;
     this.saveSettingsToStorage();
   }
 
@@ -79,6 +80,7 @@ export class StateService {
   private createDefaultSettings(): void {
     this.state = {
       grid: undefined,
+      currentGame: undefined,
       user: {
         viewedInstructions: false,
         totalGamesLost: 0,
@@ -100,7 +102,8 @@ export class StateService {
 }
 
 export interface SettingsState {
-  grid: Grid | undefined;
+  grid: Grid | undefined; // deprecated
+  currentGame: Grid | undefined;
   user: UserSettings;
 }
 

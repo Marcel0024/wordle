@@ -1,18 +1,9 @@
 <div
   fxLayoutAlign="center center"
-  class="tile"
-  [class.fade]="disabled"
-  [class.container]="!isLargeWord()"
-  [class.large-container]="isLargeWord()"
-  [class.not-keyboard]="!isKeyboard"
-  [class.keyboard]="isKeyboard"
+  class="tile container"
+  [@cardFlip]="evaluation"
   [style.background-color]="getColor()"
-  (click)="clicked()"
-  [ngStyle]="{ cursor: isKeyboard && !disabled ? 'pointer' : '' }"
   fxFlex="4 4 0"
-  matRipple
-  [matRippleCentered]="true"
-  [matRippleDisabled]="!isKeyboard || disabled"
 >
   <span>
     {{ text }}
