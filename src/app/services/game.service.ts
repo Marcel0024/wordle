@@ -307,9 +307,9 @@ export class GameService {
   }
 
   startFireworks() {
-    timer(0, 2000)
+    timer(0, 1500)
       .pipe(
-        take(2),
+        take(3),
         map(() => {
           for (let index = 0; index <= 5; index++) {
             fx({
@@ -320,7 +320,7 @@ export class GameService {
                 Math.floor(Math.random() * (window.innerHeight / 2)) +
                 window.innerHeight / 4 -
                 250,
-              particleTimeout: 7500,
+              particleTimeout: 4000 + Math.floor(Math.random() * 3000),
               colors: index % 2 === 0 ? ['#538d3e', '#b59f3b'] : ['red'],
             });
           }
