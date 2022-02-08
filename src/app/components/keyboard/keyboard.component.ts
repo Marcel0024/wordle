@@ -1,22 +1,24 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Evaluation } from '../interfaces/state';
-import { FoundLetter } from '../services/game.service';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Evaluation } from '../../interfaces/state';
+import { FoundLetter } from '../../services/game.service';
 
 @Component({
   selector: 'app-keyboard',
   templateUrl: './keyboard.component.html',
   styleUrls: ['./keyboard.component.scss'],
 })
-export class KeyboardComponent implements OnInit {
-  @Input() rows!: string[][];
+export class KeyboardComponent {
   @Input() foundLetters: FoundLetter[] = [];
   @Input() disabled: boolean = false;
 
   @Output() onClick = new EventEmitter<string>();
 
-  constructor() {}
-
-  ngOnInit(): void {}
+  rows = [
+    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+    ['Z', 'X', 'C', 'V', 'B', 'N', 'Ñ', 'M'],
+    ['ENTER', 'BACKSPACE'],
+  ];
 
   letterClicked(letter: string): void {
     if (!this.disabled) {

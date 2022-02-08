@@ -4,10 +4,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { Component } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { KeyboardComponent } from './keyboard/keyboard.component';
-import { RowComponent } from './grid/components/row/row.component';
-import { GridComponent } from './grid/grid.component';
-import { TileComponent } from './components/tile/tile.component';
+import { KeyboardComponent } from './components/keyboard/keyboard.component';
+import { GridComponent } from './components/grid/grid.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -19,7 +17,11 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
-import { KeyboardTileComponent } from './keyboard/keyboard-tile/keyboard-tile.component';
+import { KeyboardTileComponent } from './components/keyboard/keyboard-tile/keyboard-tile.component';
+import { CountdownComponent } from './components/countdown/countdown.component';
+import { RowComponent } from './components/grid/row/row.component';
+import { TileComponent } from './components/grid/tile/tile.component';
+import { CopyButtonComponent } from './components/copy-button/copy-button.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +33,8 @@ import { KeyboardTileComponent } from './keyboard/keyboard-tile/keyboard-tile.co
     KeyboardTileComponent,
     DialogComponent,
     IntroDialogComponent,
+    CountdownComponent,
+    CopyButtonComponent,
   ],
   imports: [
     BrowserModule,

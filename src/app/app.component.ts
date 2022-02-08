@@ -20,10 +20,9 @@ export class AppComponent implements OnInit {
   rows: Row[] | undefined;
 
   constructor(
-    private readonly gameService: GameService,
+    public readonly gameService: GameService,
     private readonly stateService: StateService,
-    private readonly dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -120,17 +119,4 @@ export class AppComponent implements OnInit {
   openInstructionsDialog(): void {
     this.dialog.open(IntroDialogComponent);
   }
-
-  copy(): void {
-    navigator.clipboard.writeText(this.gameService.toCopyText());
-
-    this.snackBar.open('Copied to clipboard!');
-  }
-
-  keyboardRows = [
-    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-    ['Z', 'X', 'C', 'V', 'B', 'N', 'Ñ', 'M'],
-    ['ENTER', 'BACKSPACE'],
-  ];
 }

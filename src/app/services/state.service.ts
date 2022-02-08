@@ -114,6 +114,7 @@ export interface UserSettings {
   totalGamesLost: number;
   finishedGames: FinishedGame[];
 }
+
 export interface FinishedGame {
   tries: number;
   count: number;

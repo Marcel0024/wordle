@@ -26,15 +26,7 @@
           gameResults?.grid?.gameStatus !== gameStatusEnum.ONGOING ? '' : 'none'
       }"
     >
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="copy()"
-        class="copy-button"
-        fxHide.lt-sm
-      >
-        Copy results <mat-icon>share</mat-icon>
-      </button>
+      <app-copy-button [text]="this.gameService.toCopyText()"></app-copy-button>
     </div>
   </div>
   <div>
@@ -42,7 +34,6 @@
   </div>
   <div fxLayoutAlign="center end">
     <app-keyboard
-      [rows]="keyboardRows"
       [disabled]="gameResults?.grid?.gameStatus !== gameStatusEnum.ONGOING"
       [foundLetters]="foundLetters"
       (onClick)="onDisplayKeyboardClick($event)"

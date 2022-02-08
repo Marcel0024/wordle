@@ -109,7 +109,7 @@ export class GameService {
   }
 
   getTodaysWord(): { word: string; nextDay: number; wordIndex: number } {
-    const epochMs = new Date(`February 2, 2022 00:00:00`).valueOf();
+    const epochMs = new Date('February 2, 2022 00:00:00').valueOf();
     const now = Date.now();
     const msInDay = 86400000;
     const index = Math.floor((now - epochMs) / msInDay);
@@ -307,7 +307,7 @@ export class GameService {
   }
 
   startFireworks() {
-    timer(0, 2000) // interval for animation
+    timer(0, 2000)
       .pipe(
         take(2),
         map(() => {
@@ -321,7 +321,7 @@ export class GameService {
                 window.innerHeight / 4 -
                 250,
               particleTimeout: 7500,
-              colors: index % 2 === 0 ? ['#538d3e'] : ['#b59f3b'],
+              colors: index % 2 === 0 ? ['#538d3e', '#b59f3b'] : ['red'],
             });
           }
         })

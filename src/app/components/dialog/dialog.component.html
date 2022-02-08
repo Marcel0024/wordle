@@ -43,18 +43,17 @@
     class="enfisis"
   >
     <span> Sigiente WORDLE den</span>
-    <span class="time"> {{ timeleft }}</span>
+    <span class="time">
+      <app-countdown
+        [countdownTime]="data.nextDay"
+        (countdownComplete)="countdown($event)"
+      >
+      </app-countdown
+    ></span>
   </p>
 
   <div *ngIf="this.data.nextDay">
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="copy()"
-      class="copy-button"
-    >
-      Copy results <mat-icon>share</mat-icon>
-    </button>
+    <app-copy-button [text]="this.data.copyText"></app-copy-button>
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
