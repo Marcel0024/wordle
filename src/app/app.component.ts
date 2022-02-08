@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
-import { GameStatus, Status } from './interfaces/state';
+import { GameStatus, Row } from './interfaces/state';
 import { FoundLetter, GameService } from './services/game.service';
 import { SettingsState, StateService } from './services/state.service';
 
@@ -17,6 +17,7 @@ export class AppComponent implements OnInit {
 
   foundLetters: FoundLetter[] = [];
   gameResults: SettingsState | undefined;
+  rows: Row[] | undefined;
 
   constructor(
     public readonly gameService: GameService,
@@ -31,8 +32,13 @@ export class AppComponent implements OnInit {
       this.openInstructionsDialog();
     }
 
-    this.gameService.gameStatus$.subscribe((x) => this.processGameStatus(x));
-    this.gameService.foundLetters$.subscribe((x) => (this.foundLetters = x));
+    this.gameService.gameStatusChange$.subscribe((x) =>
+      this.processGameStatus(x)
+    );
+    this.gameService.foundLettersChange$.subscribe(
+      (x) => (this.foundLetters = x)
+    );
+    this.gameService.rowsChange$.subscribe((x) => (this.rows = x));
     this.gameService.init();
   }
   processGameStatus(gameResults: SettingsState): void {
@@ -45,6 +51,7 @@ export class AppComponent implements OnInit {
     if (!this.gameResults?.grid) {
       return;
     }
+
     let data: any = {
       nextDay: this.gameResults.grid?.nextDay,
       copyText: this.gameService.toCopyText(),
@@ -67,9 +74,8 @@ export class AppComponent implements OnInit {
     }
 
     if (this.gameResults.grid?.gameStatus === GameStatus.WON) {
-      const totalTries = this.gameResults.grid.rows.filter(
-        (x) => x.status === Status.COMPLETED
-      ).length;
+      const totalTries = this.gameService.getTotalGuesses();
+
       this.dialog.open(DialogComponent, {
         data: {
           ...data,

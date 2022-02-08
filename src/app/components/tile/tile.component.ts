@@ -47,25 +47,25 @@ import {
         })
       ),
       transition(`${Evaluation.UNKNOWN} => ${Evaluation.PRESENT}`, [
-        animate(200, style({ transform: 'rotateY(90deg)' })),
+        animate(300, style({ transform: 'rotateY(90deg)' })),
         style({
           'background-color': '#b59f3b',
         }),
-        animate(200, style({ transform: 'rotateY(0deg)' })),
+        animate(300, style({ transform: 'rotateY(0deg)' })),
       ]),
       transition(`${Evaluation.UNKNOWN} => ${Evaluation.ABSENT}`, [
-        animate(200, style({ transform: 'rotateY(90deg)' })),
+        animate(300, style({ transform: 'rotateY(90deg)' })),
         style({
           'background-color': '#3a3a3c',
         }),
-        animate(200, style({ transform: 'rotateY(0deg)' })),
+        animate(300, style({ transform: 'rotateY(0deg)' })),
       ]),
       transition(`${Evaluation.UNKNOWN} => ${Evaluation.CORRECT}`, [
-        animate(200, style({ transform: 'rotateY(90deg)' })),
+        animate(300, style({ transform: 'rotateY(90deg)' })),
         style({
           'background-color': '#538d3e',
         }),
-        animate(200, style({ transform: 'rotateY(0deg)' })),
+        animate(300, style({ transform: 'rotateY(0deg)' })),
       ]),
     ]),
   ],
@@ -83,10 +83,6 @@ export class TileComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {}
-
-  clicked(): void {
-    this.onClick.emit(this.text);
-  }
 
   getColor(): string {
     switch (this.evaluation) {

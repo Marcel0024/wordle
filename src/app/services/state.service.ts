@@ -16,7 +16,7 @@ export class StateService {
     return this.state;
   }
 
-  getGrid(): Grid | undefined {
+  getCurrentGame(): Grid | undefined {
     return this.state.grid;
   }
 
@@ -29,7 +29,7 @@ export class StateService {
     this.saveSettingsToStorage();
   }
 
-  updateGrid(grid: Grid): void {
+  save(grid: Grid): void {
     this.state.grid = grid;
     this.state.currentGame = grid;
     this.saveSettingsToStorage();
