@@ -26,7 +26,10 @@
           gameResults?.grid?.gameStatus !== gameStatusEnum.ONGOING ? '' : 'none'
       }"
     >
-      <app-copy-button [text]="this.gameService.toCopyText()"></app-copy-button>
+      <app-copy-button
+        [text]="this.gameService.toCopyText()"
+        fxHide.lt-md
+      ></app-copy-button>
     </div>
   </div>
   <div>
