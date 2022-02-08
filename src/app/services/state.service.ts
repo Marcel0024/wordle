@@ -44,6 +44,21 @@ export class StateService {
 
     if (gameStatus === GameStatus.WON) {
       this.state.user.totalGamesWon++;
+
+      if (this.state.user.currentStreak === undefined) {
+        this.state.user.currentStreak = 0;
+      }
+
+      this.state.user.currentStreak++;
+
+      if (this.state.user.maxStreak === undefined) {
+        this.state.user.maxStreak = 0;
+      }
+
+      if (this.state.user.maxStreak < this.state.user.currentStreak) {
+        this.state.user.maxStreak = this.state.user.currentStreak;
+      }
+
       let finished = this.state.user.finishedGames.find(
         (x) => x.tries === tries
       );
@@ -86,6 +101,8 @@ export class StateService {
         totalGamesLost: 0,
         totalGamesPlayed: 0,
         totalGamesWon: 0,
+        currentStreak: 0,
+        maxStreak: 0,
         finishedGames: [...Array(10).keys()].map((x) => ({
           tries: x,
           count: 0,
@@ -112,6 +129,8 @@ export interface UserSettings {
   totalGamesPlayed: number;
   totalGamesWon: number;
   totalGamesLost: number;
+  currentStreak: number;
+  maxStreak: number;
   finishedGames: FinishedGame[];
 }
 
