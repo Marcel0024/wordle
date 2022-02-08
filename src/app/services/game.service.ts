@@ -114,6 +114,7 @@ export class GameService {
     const msInDay = 86400000;
     const index = Math.floor((now - epochMs) / msInDay);
     const nextDay = (index + 1) * msInDay + epochMs;
+
     return {
       word: WORDS[index % WORDS.length].toUpperCase(),
       nextDay: nextDay,
@@ -214,7 +215,7 @@ export class GameService {
         map((index) => {
           copyRows[rowIndex].tiles[index].evaluation = evaluations[index]; // set the evaluation
 
-          if (guessWord === 'PATIN' || guessWord === 'TONTO') {
+          if (guessWord === 'PATIN') {
             // Easter egg
             const array = ['✊', '🍆', '💦', '💦', '😂'];
             copyRows[rowIndex].tiles[index].letter = array[index]; // set the evaluation
@@ -229,7 +230,7 @@ export class GameService {
       )
       .subscribe(() => {
         this.busy = false;
-        if (guessWord === 'PATIN' || guessWord === 'TONTO') {
+        if (guessWord === 'PATIN') {
           // easter egg
           this.snackBar.open('ayy 😂', undefined, { duration: 4000 });
           setTimeout(() => this.broadastGridChange(), 3000);
