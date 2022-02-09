@@ -50,7 +50,10 @@ export class GameService {
     this.interval$ = interval(1000)
       .pipe(
         filter(() => this.grid?.nextDay - new Date().valueOf() < 0),
-        tap(() => this.init())
+        tap(() => {
+          this.init();
+          this.startFireworks();
+        })
       )
       .subscribe();
   }
@@ -330,7 +333,7 @@ export class GameService {
 
   canEnterWord(currentRow: Row, guessWord: string): boolean {
     if (!currentRow.tiles.every((x) => x.status === Status.FILLED)) {
-      this.snackBar.open(`'No tin suficiente letter.`);
+      this.snackBar.open(`No tin suficiente letter.`);
       return false;
     }
 
