@@ -18,7 +18,7 @@ export class DialogComponent implements OnInit {
     private readonly dialogRef: MatDialogRef<DialogComponent>
   ) {}
 
-  displayedColumns: string[] = ['Hunga', 'Gana', 'Perde'];
+  displayedColumns: string[] = ['Hunga', 'Gana', 'Perde', 'Streak'];
 
   ngOnInit(): void {
     this.dialogRef.disableClose = true;
@@ -37,6 +37,7 @@ export class DialogComponent implements OnInit {
         totalGamesPlayed: this.data.totalGamesPlayed,
         totalGamesWon: this.data.totalGamesWon,
         totalGamesLost: this.data.totalGamesLost,
+        currentStreak: this.data.currentStreak,
       },
     ];
   }

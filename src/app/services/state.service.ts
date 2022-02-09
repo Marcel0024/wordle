@@ -72,6 +72,7 @@ export class StateService {
       }
     } else if (gameStatus === GameStatus.LOST) {
       this.state.user.totalGamesLost++;
+      this.state.user.currentStreak = 0;
     }
     this.saveSettingsToStorage();
   }
