@@ -49,7 +49,12 @@ export class StateService {
         this.state.user.currentStreak = 0;
       }
 
+      if (this.state.user.currentStreakWordIndex === undefined) {
+        this.state.user.currentStreakWordIndex = 0;
+      }
+
       this.state.user.currentStreak++;
+      this.state.user.currentStreakWordIndex = this.state.grid?.wordIndex ?? 0;
 
       if (this.state.user.maxStreak === undefined) {
         this.state.user.maxStreak = 0;
@@ -103,6 +108,7 @@ export class StateService {
         totalGamesPlayed: 0,
         totalGamesWon: 0,
         currentStreak: 0,
+        currentStreakWordIndex: 0,
         maxStreak: 0,
         finishedGames: [...Array(10).keys()].map((x) => ({
           tries: x,
@@ -131,6 +137,7 @@ export interface UserSettings {
   totalGamesWon: number;
   totalGamesLost: number;
   currentStreak: number;
+  currentStreakWordIndex: number;
   maxStreak: number;
   finishedGames: FinishedGame[];
 }

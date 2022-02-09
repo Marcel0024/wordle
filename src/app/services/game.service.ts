@@ -59,7 +59,6 @@ export class GameService {
     let gameInState = this.stateService.getCurrentGame();
 
     if (gameInState) {
-      // firsttime
       this.grid = gameInState;
 
       if (this.grid.nextDay - new Date().valueOf() < 0) {
