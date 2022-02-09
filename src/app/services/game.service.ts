@@ -52,7 +52,7 @@ export class GameService {
         filter(() => this.grid?.nextDay - new Date().valueOf() < 0),
         tap(() => {
           this.init();
-          this.startFireworks();
+          this.startFireworks(1);
         })
       )
       .subscribe();
@@ -295,7 +295,7 @@ export class GameService {
       )
     ) {
       this.finishGame(GameStatus.WON);
-      this.startFireworks();
+      this.startFireworks(3);
       return true;
     } else if (this.grid.rows.every((x) => x.status === Status.COMPLETED)) {
       this.snackBar.open(`'${this.grid?.word}'`, undefined, {
@@ -308,10 +308,10 @@ export class GameService {
     return false;
   }
 
-  startFireworks() {
+  startFireworks(times: number) {
     timer(0, 1500)
       .pipe(
-        take(3),
+        take(times),
         map(() => {
           for (let index = 0; index <= 5; index++) {
             fx({
