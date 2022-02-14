@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import fx from 'fireworks';
+import fx, { fireworks } from 'fireworks';
 import {
   delay,
   filter,
@@ -189,6 +189,20 @@ export class GameService {
 
     const guessWord = row.tiles.map((x) => x.letter).join('');
     const solutionWord = this.getSolutionWord();
+
+    if (guessWord === 'GIAN') {
+      if (confirm('Abo ta Gian?')) {
+        this.startFireworks(10);
+        alert('Marico');
+      }
+      row.tiles.forEach((tile) => {
+        tile.letter = '';
+        tile.status = Status.OPEN;
+        tile.evaluation = Evaluation.UNKNOWN;
+      });
+      this.broadastGridChange();
+      return;
+    }
 
     if (!this.canEnterWord(row, guessWord)) {
       return;
