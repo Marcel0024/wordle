@@ -39,3 +39,18 @@ span {
     font-size: 1.4em;
   }
 }
+
+@media only screen and (max-height: 600px) {
+  .container {
+    width: 2em;
+    height: 2.8em;
+  }
+
+  .large-container {
+    width: 8.8em;
+    height: 2.8em;
+  }
+  span {
+    font-size: 1.2em;
+  }
+}
