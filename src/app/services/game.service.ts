@@ -190,20 +190,6 @@ export class GameService {
     const guessWord = row.tiles.map((x) => x.letter).join('');
     const solutionWord = this.getSolutionWord();
 
-    if (guessWord === 'GIAN') {
-      if (confirm('Abo ta Gian?')) {
-        this.startFireworks(10);
-        alert('Marico');
-      }
-      row.tiles.forEach((tile) => {
-        tile.letter = '';
-        tile.status = Status.OPEN;
-        tile.evaluation = Evaluation.UNKNOWN;
-      });
-      this.broadastGridChange();
-      return;
-    }
-
     if (!this.canEnterWord(row, guessWord)) {
       return;
     }
@@ -269,7 +255,9 @@ export class GameService {
     });
 
     splitGuess.forEach((letter, i) => {
-      if (statuses[i]) return;
+      if (statuses[i]) {
+        return;
+      }
 
       if (!splitSolution.includes(letter)) {
         // handles the absent case
@@ -346,6 +334,11 @@ export class GameService {
   }
 
   canEnterWord(currentRow: Row, guessWord: string): boolean {
+    if (guessWord === 'GIAN') {
+      this.snackBar.open(`No tin suficiente letter y e ta marico.`);
+      return false;
+    }
+
     if (!currentRow.tiles.every((x) => x.status === Status.FILLED)) {
       this.snackBar.open(`No tin suficiente letter.`);
       return false;
