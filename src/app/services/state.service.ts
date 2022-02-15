@@ -110,6 +110,7 @@ export class StateService {
         currentStreak: 0,
         currentStreakWordIndex: 0,
         maxStreak: 0,
+        lastSaved: 0,
         finishedGames: [...Array(10).keys()].map((x) => ({
           tries: x,
           count: 0,
@@ -121,6 +122,7 @@ export class StateService {
   }
 
   private saveSettingsToStorage(): void {
+    this.state.user.lastSaved = new Date().valueOf();
     localStorage.setItem(this.localStorageKey, JSON.stringify(this.state));
   }
 }
@@ -139,6 +141,7 @@ export interface UserSettings {
   currentStreak: number;
   currentStreakWordIndex: number;
   maxStreak: number;
+  lastSaved: number;
   finishedGames: FinishedGame[];
 }
 
