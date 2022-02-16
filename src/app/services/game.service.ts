@@ -42,6 +42,7 @@ export class GameService {
   rowsChange$ = new EventEmitter<Row[]>();
 
   interval$: Subscription | undefined;
+  timer: Subscription;
 
   constructor(
     private readonly stateService: StateService,
@@ -55,6 +56,13 @@ export class GameService {
           this.startFireworks(1);
         })
       )
+      .subscribe();
+
+    // reload front-end in two days to make sure client is always up to date
+    // location.reload() is only reached if the client never closes the browser/tab
+    const msInDay = 86400000;
+    this.timer = timer(msInDay * 2)
+      .pipe(tap(() => location.reload()))
       .subscribe();
   }
 

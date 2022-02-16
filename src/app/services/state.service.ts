@@ -111,10 +111,7 @@ export class StateService {
         currentStreakWordIndex: 0,
         maxStreak: 0,
         lastSaved: 0,
-        finishedGames: [...Array(10).keys()].map((x) => ({
-          tries: x,
-          count: 0,
-        })),
+        finishedGames: [],
       },
     };
 

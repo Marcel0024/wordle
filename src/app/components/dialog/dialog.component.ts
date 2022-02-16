@@ -111,7 +111,6 @@ export class DialogComponent implements OnInit, AfterViewInit, OnDestroy {
 
         scales: {
           y: {
-            beginAtZero: true,
             ticks: {
               stepSize: 1,
               autoSkip: false,
@@ -119,7 +118,6 @@ export class DialogComponent implements OnInit, AfterViewInit, OnDestroy {
             },
           },
           x: {
-            beginAtZero: true,
             ticks: {
               stepSize: 1,
               autoSkip: true,
