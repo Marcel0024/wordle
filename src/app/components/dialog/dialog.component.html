@@ -9,8 +9,10 @@
     fxLayoutGap="15px"
     class="text"
   >
-    <span> {{ data.text }}</span>
-    <span> Sigiente WORDLE den</span>
+    <span align="center">
+      {{ data.text }} <br />
+      Sigiente WORDLE den</span
+    >
     <span class="time">
       <app-countdown
         [countdownTime]="data.nextDay"
@@ -21,12 +23,12 @@
   </p>
   <mat-divider></mat-divider>
   <div class="data-container">
-    <div fxLayoutAlign="center start" fxLayout="row" fxLayoutGap="10px">
+    <div fxLayoutAlign="center start" fxLayout="row" fxLayoutGap="20px">
       <div
         fxLayoutAlign="center center"
         fxLayout="column"
         class="data"
-        fxLayoutGap="10px"
+        fxLayoutGap="5px"
       >
         <span class="number">{{ data.totalGamesPlayed }}</span>
         <span class="label">Hunga</span>
@@ -35,7 +37,7 @@
         fxLayoutAlign="center center"
         fxLayout="column"
         class="data"
-        fxLayoutGap="10px"
+        fxLayoutGap="5px"
       >
         <span class="number">{{ percentageGameWon() }}%</span>
         <span class="label">Gana % </span>
@@ -44,20 +46,33 @@
         fxLayoutAlign="center center"
         fxLayout="column"
         class="data"
-        fxLayoutGap="10px"
+        fxLayoutGap="5px"
       >
         <span class="number">{{ data.currentStreak }}</span>
-        <span class="label">Current Streak</span>
+        <span class="label break-word"
+          >Current<br />
+          Streak</span
+        >
       </div>
       <div
         fxLayoutAlign="center center"
         fxLayout="column"
         class="data"
-        fxLayoutGap="10px"
+        fxLayoutGap="5px"
       >
         <span class="number">{{ data.maxStreak }}</span>
-        <span class="label">Max Streak</span>
+        <span class="label break-word">Max<br />Streak</span>
       </div>
+    </div>
+  </div>
+  <div
+    class="chart-container"
+    fxLayoutAlign="center center"
+    fxLayout="row"
+    *ngIf="data.totalGamesPlayed > 0"
+  >
+    <div class="chartcanvas">
+      <canvas #chartcanvas style="width: 100%; height: 100%"> </canvas>
     </div>
   </div>
 

@@ -1,7 +1,10 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DialogComponent } from './components/dialog/dialog.component';
+import {
+  DialogComponent,
+  dialogData,
+} from './components/dialog/dialog.component';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
 import { GameStatus, Row } from './interfaces/state';
 import { FoundLetter, GameService } from './services/game.service';
@@ -51,7 +54,17 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    let data: any = {
+    let wonsInTries = this.gameResults.user.finishedGames.filter(
+      (x) => x.tries > 0 && x.tries <= this.gameService.tries
+    );
+
+    for (let i = 1; i < this.gameService.tries + 1; i++) {
+      if (!wonsInTries.find((x) => x.tries === i)) {
+        wonsInTries.push({ tries: i, count: 0 });
+      }
+    }
+
+    let data: dialogData = {
       nextDay: this.gameResults.grid?.nextDay,
       copyText: this.gameService.toCopyText(),
       totalGamesPlayed: this.gameResults.user.totalGamesPlayed,
@@ -59,6 +72,9 @@ export class AppComponent implements OnInit {
       totalGamesLost: this.gameResults.user.totalGamesLost,
       currentStreak: this.gameResults.user?.currentStreak ?? 0,
       maxStreak: this.gameResults.user?.maxStreak ?? 0,
+      wonsInTries: wonsInTries,
+      title: '',
+      text: '',
     };
 
     if (
