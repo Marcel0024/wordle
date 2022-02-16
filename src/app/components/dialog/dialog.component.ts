@@ -33,7 +33,6 @@ export class DialogComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.dialogRef.disableClose = true;
-    setTimeout(() => (this.dialogRef.disableClose = false), 1000);
   }
 
   ngAfterViewInit(): void {

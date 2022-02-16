@@ -183,7 +183,7 @@ export class GameService {
 
     let row = this.getOpenRow();
 
-    if (!row || row === undefined) {
+    if (!row || this.grid.gameStatus !== GameStatus.ONGOING) {
       return; // Game is over
     }
 
