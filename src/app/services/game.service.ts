@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import fx, { fireworks } from 'fireworks';
+import fx from 'fireworks';
 import {
   delay,
   filter,
