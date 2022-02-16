@@ -97,6 +97,7 @@ export const words: string[] = [
   'KIBRA',
   'SPONS',
   'BOFON',
+  'SENDE',
   'MUNDO',
   'ANTES',
   'HOBEN',
