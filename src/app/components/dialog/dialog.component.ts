@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   Inject,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -15,7 +16,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './dialog.component.html',
   styleUrls: ['./dialog.component.scss'],
 })
-export class DialogComponent implements OnInit, AfterViewInit {
+export class DialogComponent implements OnInit, AfterViewInit, OnDestroy {
   timeLeft: string | undefined;
   countdown$: Subscription | undefined;
 
@@ -38,6 +39,10 @@ export class DialogComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initChart();
+  }
+
+  ngOnDestroy(): void {
+    this.chart?.destroy();
   }
 
   countdown(data: { complete: boolean }): void {
