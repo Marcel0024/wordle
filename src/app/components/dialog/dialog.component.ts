@@ -80,7 +80,7 @@ export class DialogComponent implements OnInit, AfterViewInit, OnDestroy {
     this.chart = new Chart(this.chartCanvas.nativeElement, {
       type: 'bar',
       data: {
-        labels: data.map((x) => `${x.tries}`),
+        labels: data.map((x) => x.tries),
         datasets: [
           {
             data: data.map((x) => x.count),
@@ -108,7 +108,6 @@ export class DialogComponent implements OnInit, AfterViewInit, OnDestroy {
       options: {
         indexAxis: 'y',
         responsive: false,
-
         scales: {
           y: {
             ticks: {

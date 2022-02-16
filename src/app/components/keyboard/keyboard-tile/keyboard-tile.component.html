@@ -3,6 +3,7 @@
   class="tile"
   [class.container]="!isLargeWord()"
   [class.large-container]="isLargeWord()"
+  [class.fade]="disabled"
   (click)="clicked()"
   [style.background-color]="getColor()"
   [ngStyle]="{ cursor: !disabled ? 'pointer' : '' }"
