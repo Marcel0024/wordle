@@ -1,16 +1,25 @@
 mat-dialog-content {
-  width: 18em;
+  width: 20em;
 }
 
-table {
-  margin: 10px -10px;
-  width: 15em;
-}
-
-.enfisis {
-  font-size: large;
+.text {
   .time {
-    padding: 20px 0;
     font-size: xx-large;
+  }
+}
+
+.data-container {
+  height: 100%;
+  width: 100%;
+  padding-bottom: 25px;
+  padding-top: 25px;
+  .data {
+    text-align: center;
+    .number {
+      font-size: 30px;
+    }
+    .label {
+      font-size: 12px;
+    }
   }
 }

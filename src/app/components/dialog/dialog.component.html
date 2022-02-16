@@ -1,52 +1,15 @@
-<h2 mat-dialog-title align="center">{{ data.title }}</h2>
+<h2 mat-dialog-title align="center">
+  {{ data.title }}
+</h2>
 <mat-dialog-content fxLayoutAlign="center center" fxLayout="column">
-  <p align="center" class="enfisis">
-    {{ data.text }}
-  </p>
-  <mat-divider></mat-divider>
-  <div>
-    <table mat-table [dataSource]="tableSource()" class="mat-elevation-z2">
-      <ng-container matColumnDef="Hunga">
-        <th mat-header-cell *matHeaderCellDef>Hunga</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.totalGamesPlayed }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="Gana">
-        <th mat-header-cell *matHeaderCellDef>Gana</th>
-        <td mat-cell *matCellDef="let element">{{ element.totalGamesWon }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="Perde">
-        <th mat-header-cell *matHeaderCellDef>Perde</th>
-        <td mat-cell *matCellDef="let element">{{ element.totalGamesLost }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="Streak">
-        <th mat-header-cell *matHeaderCellDef>Streak</th>
-        <td mat-cell *matCellDef="let element">{{ element.currentStreak }}</td>
-      </ng-container>
-
-      <tr
-        mat-header-row
-        *matHeaderRowDef="displayedColumns"
-        align="center"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        align="center"
-      ></tr>
-    </table>
-  </div>
-  <mat-divider></mat-divider>
   <p
     *ngIf="this.data.nextDay"
     fxLayout="column"
     fxLayoutAlign="center center"
-    class="enfisis"
+    fxLayoutGap="15px"
+    class="text"
   >
+    <span> {{ data.text }}</span>
     <span> Sigiente WORDLE den</span>
     <span class="time">
       <app-countdown
@@ -56,6 +19,47 @@
       </app-countdown
     ></span>
   </p>
+  <mat-divider></mat-divider>
+  <div class="data-container">
+    <div fxLayoutAlign="center start" fxLayout="row" fxLayoutGap="10px">
+      <div
+        fxLayoutAlign="center center"
+        fxLayout="column"
+        class="data"
+        fxLayoutGap="10px"
+      >
+        <span class="number">{{ data.totalGamesPlayed }}</span>
+        <span class="label">Hunga</span>
+      </div>
+      <div
+        fxLayoutAlign="center center"
+        fxLayout="column"
+        class="data"
+        fxLayoutGap="10px"
+      >
+        <span class="number">{{ percentageGameWon() }}%</span>
+        <span class="label">Gana % </span>
+      </div>
+      <div
+        fxLayoutAlign="center center"
+        fxLayout="column"
+        class="data"
+        fxLayoutGap="10px"
+      >
+        <span class="number">{{ data.currentStreak }}</span>
+        <span class="label">Current Streak</span>
+      </div>
+      <div
+        fxLayoutAlign="center center"
+        fxLayout="column"
+        class="data"
+        fxLayoutGap="10px"
+      >
+        <span class="number">{{ data.maxStreak }}</span>
+        <span class="label">Max Streak</span>
+      </div>
+    </div>
+  </div>
 
   <div *ngIf="this.data.nextDay">
     <app-copy-button [text]="this.data.copyText"></app-copy-button>

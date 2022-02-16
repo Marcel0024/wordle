@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { filter, interval, Subscription, tap } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dialog',
@@ -13,12 +12,9 @@ export class DialogComponent implements OnInit {
   countdown$: Subscription | undefined;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private readonly snackBar: MatSnackBar,
+    @Inject(MAT_DIALOG_DATA) public readonly data: any,
     private readonly dialogRef: MatDialogRef<DialogComponent>
   ) {}
-
-  displayedColumns: string[] = ['Hunga', 'Gana', 'Perde', 'Streak'];
 
   ngOnInit(): void {
     this.dialogRef.disableClose = true;
@@ -31,14 +27,14 @@ export class DialogComponent implements OnInit {
     }
   }
 
-  tableSource(): any[] {
-    return [
-      {
-        totalGamesPlayed: this.data.totalGamesPlayed,
-        totalGamesWon: this.data.totalGamesWon,
-        totalGamesLost: this.data.totalGamesLost,
-        currentStreak: this.data.currentStreak,
-      },
-    ];
+  percentageGameWon(): string {
+    const percent =
+      (100 * this.data.totalGamesWon) / this.data.totalGamesPlayed;
+
+    if (isNaN(percent)) {
+      return '0';
+    }
+
+    return percent.toFixed(0);
   }
 }

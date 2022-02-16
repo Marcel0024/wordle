@@ -58,6 +58,7 @@ export class AppComponent implements OnInit {
       totalGamesWon: this.gameResults.user.totalGamesWon,
       totalGamesLost: this.gameResults.user.totalGamesLost,
       currentStreak: this.gameResults.user?.currentStreak ?? 0,
+      maxStreak: this.gameResults.user?.maxStreak ?? 0,
     };
 
     if (
