@@ -71,6 +71,7 @@ export const validGuesses = [
   'APURO',
   'ARABE',
   'ARENA',
+  'AREPA',
   'ARIBA',
   'ARIES',
   'AROMA',
