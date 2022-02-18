@@ -343,6 +343,7 @@ export const validGuesses = [
   'CONGA',
   'CONTA',
   'CORAL',
+  'COLOR',
   'CORAN',
   'CORAN',
   'CORDA',
