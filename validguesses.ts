@@ -1,4 +1,5 @@
 export const validGuesses = [
+  'MITAR',
   'ABCES',
   'ABEHA',
   'ABLIF',
