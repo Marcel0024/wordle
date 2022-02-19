@@ -52,7 +52,7 @@ export class AppComponent implements OnInit {
     this.gameService.gameEnd$.subscribe((gameEndResults) => {
       if (gameEndResults && gameEndResults.gameStatus != GameStatus.ONGOING) {
         this.disabledKeyboard = true;
-      }else{
+      } else {
         this.disabledKeyboard = false;
       }
       this.gameEndResults = gameEndResults;

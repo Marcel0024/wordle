@@ -100,7 +100,7 @@ export class GameService {
 
     if (this.currentGame.gameStatus !== GameStatus.ONGOING) {
       this.broadcastGameEndChange(this.currentGame.gameStatus);
-    }else{
+    } else {
       this.gameEnd$.next(undefined);
     }
   }
@@ -417,7 +417,7 @@ export class GameService {
     let string = `Papiamento Wordle\n`;
 
     let totalGuesses = '-';
-    if(this.currentGame.gameStatus === GameStatus.WON){
+    if (this.currentGame.gameStatus === GameStatus.WON) {
       totalGuesses = this.getTotalGuesses().toString();
     }
 
