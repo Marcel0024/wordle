@@ -414,7 +414,12 @@ export class GameService {
   private toCopyText(): string {
     let string = `Papiamento Wordle\n`;
 
-    string += `${this.getTotalGuesses()}/${this.tries} ${
+    let totalGuesses = '-';
+    if(this.currentGame.gameStatus === GameStatus.WON){
+      totalGuesses = this.getTotalGuesses().toString();
+    }
+
+    string += `${totalGuesses}/${this.tries} ${
       this.currentGame.wordIndex + 1
     }\n\n`;
 
