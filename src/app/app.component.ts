@@ -2,12 +2,17 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
   DialogComponent,
-  dialogData,
+  dialogData as DialogData,
 } from './components/dialog/dialog.component';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
 import { GameStatus, Row } from './interfaces/state';
-import { FoundLetter, GameService } from './services/game.service';
-import { SettingsState, StateService } from './services/state.service';
+import {
+  FoundLetter,
+  GameEndResults,
+  GameService,
+  GameStats,
+} from './services/game.service';
+import { StateService } from './services/state.service';
 
 @Component({
   selector: 'app-root',
@@ -15,102 +20,52 @@ import { SettingsState, StateService } from './services/state.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  gameStatusEnum = GameStatus;
+  gameStats!: GameStats;
+
+  grid: Row[] | undefined;
 
   foundLetters: FoundLetter[] = [];
-  gameResults: SettingsState | undefined;
-  rows: Row[] | undefined;
+  disabledKeyboard: boolean = false;
+  gameEndResults: GameEndResults | undefined;
 
   constructor(
-    public readonly gameService: GameService,
+    private readonly gameService: GameService,
     private readonly stateService: StateService,
     private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     if (!this.stateService.getViewedInstructions()) {
-      this.stateService.updateViewInstructions(true);
+      this.stateService.setViewedInstructions();
       this.openInstructionsDialog();
     }
 
-    this.gameService.gameStatusChange$.subscribe((x) =>
-      this.processGameStatus(x)
-    );
-    this.gameService.foundLettersChange$.subscribe(
-      (x) => (this.foundLetters = x)
-    );
-    this.gameService.rowsChange$.subscribe((x) => (this.rows = x));
+    this.subscribeToGameEvents();
     this.gameService.init();
   }
 
-  processGameStatus(gameResults: SettingsState): void {
-    this.gameResults = gameResults;
-    this.showGameResultsPopup(false);
-  }
+  subscribeToGameEvents(): void {
+    this.gameService.gameStatsChange$.subscribe((stats) => {
+      this.gameStats = stats;
+    });
 
-  showGameResultsPopup(buttonPressed: boolean): void {
-    if (!this.gameResults?.grid) {
-      return;
-    }
-
-    let wonsInTries = this.gameResults.user.finishedGames.filter(
-      (x) => x.tries > 0 && x.tries <= this.gameService.tries
-    );
-
-    for (let i = 1; i < this.gameService.tries + 1; i++) {
-      if (!wonsInTries.find((x) => x.tries === i)) {
-        wonsInTries.push({ tries: i, count: 0 });
+    this.gameService.gameEnd$.subscribe((gameEndResults) => {
+      if (gameEndResults && gameEndResults.gameStatus != GameStatus.ONGOING) {
+        this.disabledKeyboard = true;
       }
-    }
+      this.gameEndResults = gameEndResults;
+      this.showGameResultsPopup(gameEndResults);
+    });
 
-    let data: dialogData = {
-      nextDay: this.gameResults.grid?.nextDay,
-      copyText: this.gameService.toCopyText(),
-      totalGamesPlayed: this.gameResults.user.totalGamesPlayed,
-      totalGamesWon: this.gameResults.user.totalGamesWon,
-      totalGamesLost: this.gameResults.user.totalGamesLost,
-      currentStreak: this.gameResults.user?.currentStreak ?? 0,
-      maxStreak: this.gameResults.user?.maxStreak ?? 0,
-      wonsInTries: wonsInTries,
-      title: '',
-      text: '',
-    };
-
-    if (
-      this.gameResults.grid.gameStatus === GameStatus.ONGOING &&
-      buttonPressed
-    ) {
-      this.dialog.open(DialogComponent, {
-        data: {
-          ...data,
-          nextDay: undefined,
-          title: 'Stats',
-        },
-      });
-    }
-
-    if (this.gameResults.grid?.gameStatus === GameStatus.WON) {
-      const totalTries = this.gameService.getTotalGuesses();
-
-      this.dialog.open(DialogComponent, {
-        data: {
-          ...data,
-          title: '🎉 Pabien!  🎉',
-          text: `Bo a rij e palabra den ${totalTries} biaha!`,
-        },
-      });
-    } else if (this.gameResults.grid?.gameStatus === GameStatus.LOST) {
-      this.dialog.open(DialogComponent, {
-        data: {
-          ...data,
-          title: '😥 Game Over 😥',
-          text: `Lastima! Purba bo suerte otro biaha!`,
-        },
-      });
-    }
+    this.gameService.foundLetters$.subscribe((x) => (this.foundLetters = x));
+    this.gameService.grid$.subscribe((x) => (this.grid = x));
   }
 
   onDisplayKeyboardClick(letter: string): void {
+    if (this.gameService.isInputDisabled()) {
+      return;
+    }
+
     if (letter === 'BACKSPACE') {
       this.gameService.backspace();
     } else if (letter === 'ENTER') {
@@ -122,6 +77,10 @@ export class AppComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   realKeyboardEvent(event: KeyboardEvent) {
+    if (this.gameService.isInputDisabled()) {
+      return;
+    }
+
     if (event.key === 'Backspace') {
       this.gameService.backspace();
     } else if (event.key === 'Enter') {
@@ -133,7 +92,68 @@ export class AppComponent implements OnInit {
     }
   }
 
+  showGameStatsPopup(): void {
+    if (this.gameEndResults) {
+      this.showGameResultsPopup(this.gameEndResults);
+      return;
+    }
+
+    const dialogData = this.getDialogStatsData();
+
+    this.dialog.open(DialogComponent, {
+      data: {
+        ...dialogData,
+        title: 'Stats',
+      },
+    });
+  }
+
+  showGameResultsPopup(gameEndResults: GameEndResults | undefined): void {
+    if (!gameEndResults) {
+      return;
+    }
+
+    const data = {
+      ...this.getDialogStatsData(),
+      nextDay: gameEndResults.nextDay,
+      copyText: gameEndResults.copyText,
+    };
+
+    if (gameEndResults.gameStatus === GameStatus.WON) {
+      this.dialog.open(DialogComponent, {
+        data: {
+          ...data,
+          title: '🎉 Pabien!  🎉',
+          text: `Bo a rij e palabra den ${gameEndResults.totalGuesses} biaha!`,
+        },
+      });
+    } else if (gameEndResults.gameStatus === GameStatus.LOST) {
+      this.dialog.open(DialogComponent, {
+        data: {
+          ...data,
+          title: '😥 Game Over 😥',
+          text: `Lastima! Purba bo suerte otro biaha!`,
+        },
+      });
+    }
+  }
+
   openInstructionsDialog(): void {
     this.dialog.open(IntroDialogComponent);
+  }
+
+  getDialogStatsData(): DialogData {
+    return {
+      title: '',
+      text: '',
+      nextDay: undefined,
+      totalGamesPlayed: this.gameStats.totalGamesPlayed,
+      totalGamesWon: this.gameStats.totalGamesWon,
+      totalGamesLost: this.gameStats.totalGamesLost,
+      currentStreak: this.gameStats.currentStreak,
+      maxStreak: this.gameStats.maxStreak,
+      wonsInTries: this.gameStats.wonsInTries,
+      copyText: undefined,
+    };
   }
 }

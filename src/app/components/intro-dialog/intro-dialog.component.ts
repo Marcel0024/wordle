@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Evaluation } from 'src/app/interfaces/state';
 
 @Component({
@@ -6,9 +6,6 @@ import { Evaluation } from 'src/app/interfaces/state';
   templateUrl: './intro-dialog.component.html',
   styleUrls: ['./intro-dialog.component.scss'],
 })
-export class IntroDialogComponent implements OnInit {
+export class IntroDialogComponent {
   evaluation = Evaluation;
-  constructor() {}
-
-  ngOnInit(): void {}
 }

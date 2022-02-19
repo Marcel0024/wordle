@@ -72,7 +72,7 @@
     *ngIf="data.totalGamesPlayed > 0"
   >
     <div class="chartcanvas">
-      <canvas #chartcanvas style="width: 100%; height: 100%"> </canvas>
+      <app-dialog-graph [wonsInTries]="data.wonsInTries"></app-dialog-graph>
     </div>
   </div>
 

@@ -2,6 +2,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import fx from 'fireworks';
 import {
+  BehaviorSubject,
   delay,
   filter,
   interval,
@@ -22,36 +23,44 @@ import {
   Status,
   Tile,
 } from '../interfaces/state';
-import { SettingsState, StateService } from './state.service';
+import { StateService } from './state.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
-  grid!: Grid;
+  currentGame!: Grid;
 
   wordsLength = 5;
   tries = 6;
 
   nextDay: number = 0;
 
-  busy = false;
+  inputsDisabled = false;
 
-  gameStatusChange$ = new EventEmitter<SettingsState>();
-  foundLettersChange$ = new EventEmitter<FoundLetter[]>();
-  rowsChange$ = new EventEmitter<Row[]>();
+  gameEnd$ = new BehaviorSubject<GameEndResults | undefined>(undefined);
+  gameStatsChange$ = new EventEmitter<GameStats>();
+  foundLetters$ = new EventEmitter<FoundLetter[]>();
+  grid$ = new EventEmitter<Row[]>();
 
   interval$: Subscription | undefined;
-  timer: Subscription;
+  timer: Subscription | undefined;
 
   constructor(
     private readonly stateService: StateService,
     private readonly snackBar: MatSnackBar
   ) {
+    this.startTimers();
+  }
+
+  startTimers(): void {
     this.interval$ = interval(1000)
       .pipe(
-        filter(() => this.grid?.nextDay - new Date().valueOf() < 0),
+        filter(() => this.newDayHasDawned()),
         tap(() => {
+          if (this.currentGame.gameStatus === GameStatus.ONGOING) {
+            this.snackBar.open('Times up!');
+          }
           this.init();
           this.startFireworks(1);
         })
@@ -70,10 +79,11 @@ export class GameService {
     let gameInState = this.stateService.getCurrentGame();
 
     if (gameInState) {
-      this.grid = gameInState;
+      this.currentGame = gameInState;
 
-      if (this.grid.nextDay - new Date().valueOf() < 0) {
-        if (this.grid.gameStatus === GameStatus.ONGOING) {
+      if (this.newDayHasDawned()) {
+        if (this.currentGame.gameStatus === GameStatus.ONGOING) {
+          // game finished
           this.finishGame(GameStatus.LOST);
         }
         this.createNewGame();
@@ -81,19 +91,111 @@ export class GameService {
     } else {
       this.createNewGame();
     }
-    this.broadcastFoundLetters();
-    this.gameStatusChange$.emit(this.stateService.getLatestState());
-    this.broadastGridChange();
+
+    this.foundLettersChange();
+    this.gridChange();
+
+    this.broadcastStatsChange();
     this.finishGameIfNecessary();
+
+    if (this.currentGame.gameStatus !== GameStatus.ONGOING) {
+      this.broadcastGameEndChange(this.currentGame.gameStatus);
+    }
   }
 
-  broadastGridChange() {
-    this.rowsChange$.emit(JSON.parse(JSON.stringify(this.grid.rows)));
+  typeLetter(letter: string): void {
+    let row = this.getOpenRow();
+    let tile = row.tiles.filter((r) => r.status === Status.OPEN)[0];
+
+    if (!tile) {
+      return;
+    }
+
+    tile.letter = letter;
+    tile.status = Status.FILLED;
+    tile.evaluation = Evaluation.UNKNOWN;
+
+    this.stateService.save(this.currentGame);
+    this.gridChange();
   }
 
-  createNewGame() {
+  backspace(): void {
+    let row = this.getOpenRow();
+    let previousTile = row.tiles
+      .filter((r) => r.status === Status.FILLED)
+      .slice(-1)[0];
+
+    if (!previousTile) {
+      return;
+    }
+
+    previousTile.letter = '';
+    previousTile.status = Status.OPEN;
+    previousTile.evaluation = Evaluation.UNKNOWN;
+
+    this.stateService.save(this.currentGame);
+    this.gridChange();
+  }
+
+  enter(): void {
+    let row = this.getOpenRow();
+
+    const guessWord = row.tiles.map((x) => x.letter).join('');
+    const solutionWord = this.getSolutionWord();
+
+    if (!this.canEnterWord(row, guessWord)) {
+      return;
+    }
+
+    const copyRows = JSON.parse(JSON.stringify(this.currentGame.rows)) as Row[];
+    const rowIndex = this.currentGame.rows.indexOf(row);
+
+    const evaluations = this.getEvaluations(guessWord, solutionWord);
+
+    row.tiles.forEach((tile, index) => {
+      tile.evaluation = evaluations[index]; // set the evaluation
+      tile.status = Status.COMPLETED;
+    });
+
+    row.status = Status.COMPLETED;
+    this.stateService.save(this.currentGame);
+
+    // Update UI
+    this.inputsDisabled = true;
+    this.grid$.emit(copyRows);
+
+    timer(0, 400) // timer for animation
+      .pipe(
+        take(this.tries - 1),
+        map((index) => {
+          copyRows[rowIndex].tiles[index].evaluation = evaluations[index]; // set the evaluation
+
+          if (guessWord === 'PATIN') {
+            // Easter egg
+            const array = ['✊', '🍆', '💦', '💦', '😂'];
+            copyRows[rowIndex].tiles[index].letter = array[index]; // set the evaluation
+          }
+
+          this.grid$.emit(copyRows);
+        }),
+        toArray(),
+        delay(500),
+        tap(() => this.foundLettersChange()), // update keyboard
+        tap(() => this.finishGameIfNecessary())
+      )
+      .subscribe(() => {
+        this.inputsDisabled = false;
+        if (guessWord === 'PATIN') {
+          // easter egg
+          this.snackBar.open('ayy 😂', undefined, { duration: 3000 });
+          setTimeout(() => this.gridChange(), 3000);
+        }
+      });
+  }
+
+  private createNewGame(): void {
     const todays = this.getTodaysWord();
-    this.grid = {
+    this.currentGame = {
       gameStatus: GameStatus.ONGOING,
       rows: [],
       word: todays.word,
@@ -113,142 +215,12 @@ export class GameService {
         row.tiles.push(tile);
       }
 
-      this.grid.rows.push(row);
+      this.currentGame.rows.push(row);
     }
-    this.stateService.save(this.grid);
+    this.stateService.save(this.currentGame);
   }
 
-  getTodaysWord(): { word: string; nextDay: number; wordIndex: number } {
-    const epochMs = new Date('February 2, 2022 00:00:00').valueOf();
-    const now = Date.now();
-    const msInDay = 86400000;
-    const index = Math.floor((now - epochMs) / msInDay);
-    const nextDay = (index + 1) * msInDay + epochMs;
-
-    return {
-      word: WORDS[index % WORDS.length].toUpperCase(),
-      nextDay: nextDay,
-      wordIndex: index,
-    };
-  }
-
-  typeLetter(letter: string) {
-    if (this.busy) {
-      return;
-    }
-
-    let row = this.getOpenRow();
-
-    if (!row || this.grid.gameStatus !== GameStatus.ONGOING) {
-      return; // Game is over
-    }
-
-    let tile = row.tiles.filter((r) => r.status === Status.OPEN)[0];
-
-    if (!tile) {
-      return;
-    }
-
-    tile.letter = letter;
-    tile.status = Status.FILLED;
-    tile.evaluation = Evaluation.UNKNOWN;
-
-    this.stateService.save(this.grid);
-    this.broadastGridChange();
-  }
-
-  backspace(): void {
-    if (this.busy) {
-      return;
-    }
-
-    let row = this.getOpenRow();
-
-    if (!row) {
-      return; // Game is over
-    }
-
-    let previousTile = row.tiles
-      .filter((r) => r.status === Status.FILLED)
-      .slice(-1)[0];
-
-    if (!previousTile) {
-      return;
-    }
-
-    previousTile.letter = '';
-    previousTile.status = Status.OPEN;
-    previousTile.evaluation = Evaluation.UNKNOWN;
-
-    this.stateService.save(this.grid);
-    this.broadastGridChange();
-  }
-
-  enter(): void {
-    if (this.busy) {
-      return;
-    }
-
-    let row = this.getOpenRow();
-
-    if (!row || this.grid.gameStatus !== GameStatus.ONGOING) {
-      return; // Game is over
-    }
-
-    const guessWord = row.tiles.map((x) => x.letter).join('');
-    const solutionWord = this.getSolutionWord();
-
-    if (!this.canEnterWord(row, guessWord)) {
-      return;
-    }
-
-    const copyRows = JSON.parse(JSON.stringify(this.grid.rows)) as Row[];
-    const rowIndex = this.grid.rows.indexOf(row);
-
-    const evaluations = this.getEvaluations(guessWord, solutionWord);
-
-    row.tiles.forEach((tile, index) => {
-      tile.evaluation = evaluations[index]; // set the evaluation
-      tile.status = Status.COMPLETED;
-    });
-
-    row.status = Status.COMPLETED;
-    this.stateService.save(this.grid);
-
-    // Update UI
-    this.busy = true;
-    this.rowsChange$.emit(copyRows);
-
-    timer(0, 400) // timer for animation
-      .pipe(
-        take(this.tries - 1),
-        map((index) => {
-          copyRows[rowIndex].tiles[index].evaluation = evaluations[index]; // set the evaluation
-
-          if (guessWord === 'PATIN') {
-            // Easter egg
-            const array = ['✊', '🍆', '💦', '💦', '😂'];
-            copyRows[rowIndex].tiles[index].letter = array[index]; // set the evaluation
-          }
-
-          this.rowsChange$.emit(copyRows);
-        }),
-        toArray(),
-        delay(500),
-        tap(() => this.broadcastFoundLetters()), // update keyboard
-        tap(() => this.finishGameIfNecessary())
-      )
-      .subscribe(() => {
-        this.busy = false;
-        if (guessWord === 'PATIN') {
-          // easter egg
-          this.snackBar.open('ayy 😂', undefined, { duration: 3000 });
-          setTimeout(() => this.broadastGridChange(), 3000);
-        }
-      });
-  }
-
-  getEvaluations(guess: string, solution: string): Evaluation[] {
+  private getEvaluations(guess: string, solution: string): Evaluation[] {
     const splitSolution = solution.split('');
     const splitGuess = guess.split('');
 
@@ -291,34 +263,32 @@ export class GameService {
     return statuses;
   }
 
-  finishGameIfNecessary(): boolean {
+  private finishGameIfNecessary(): void {
     if (
-      this.grid.gameStatus === GameStatus.WON ||
-      this.grid.gameStatus === GameStatus.LOST
+      this.currentGame.gameStatus === GameStatus.WON ||
+      this.currentGame.gameStatus === GameStatus.LOST
     ) {
-      return false;
+      return;
     }
 
     if (
-      this.grid.rows.some((x) =>
+      this.currentGame.rows.some((x) =>
         x.tiles.every((x) => x.evaluation === Evaluation.CORRECT)
       )
     ) {
       this.finishGame(GameStatus.WON);
       this.startFireworks(3);
-      return true;
-    } else if (this.grid.rows.every((x) => x.status === Status.COMPLETED)) {
-      this.snackBar.open(`'${this.grid?.word}'`, undefined, {
+    } else if (
+      this.currentGame.rows.every((x) => x.status === Status.COMPLETED)
+    ) {
+      this.snackBar.open(`'${this.currentGame?.word}'`, undefined, {
         duration: 5000,
       });
       this.finishGame(GameStatus.LOST);
-      return true;
     }
-
-    return false;
   }
 
-  startFireworks(times: number) {
+  private startFireworks(times: number) {
     timer(0, 1500)
       .pipe(
         take(times),
@@ -341,7 +311,7 @@ export class GameService {
       .subscribe();
   }
 
-  canEnterWord(currentRow: Row, guessWord: string): boolean {
+  private canEnterWord(currentRow: Row, guessWord: string): boolean {
     if (guessWord === 'GIAN') {
       this.snackBar.open(`No tin suficiente letter y e ta marico.`);
       return false;
@@ -353,7 +323,7 @@ export class GameService {
     }
 
     if (
-      this.grid.rows
+      this.currentGame.rows
         .filter((r) => r.status === Status.COMPLETED)
         .some((r) => r.tiles.map((t) => t.letter).join('') === guessWord)
     ) {
@@ -369,21 +339,25 @@ export class GameService {
     return true;
   }
 
-  finishGame(gameStatus: GameStatus): void {
-    this.grid.gameStatus = gameStatus;
-    this.stateService.save(this.grid);
+  private finishGame(gameStatus: GameStatus): void {
+    this.currentGame.gameStatus = gameStatus;
+
+    this.stateService.save(this.currentGame);
     this.stateService.updateGameStats(gameStatus, this.getTotalGuesses());
-    this.gameStatusChange$.emit(this.stateService.getLatestState());
+
+    this.broadcastStatsChange();
+    this.broadcastGameEndChange(gameStatus);
   }
 
-  getTotalGuesses(): number {
-    return this.grid.rows.filter((x) => x.status === Status.COMPLETED).length;
+  private getTotalGuesses(): number {
+    return this.currentGame.rows.filter((x) => x.status === Status.COMPLETED)
+      .length;
   }
 
-  broadcastFoundLetters(): void {
+  private foundLettersChange(): void {
     const foundLetters: FoundLetter[] = [];
 
-    this.grid.rows
+    this.currentGame.rows
       .filter((r) => r.status === Status.COMPLETED)
       .forEach((row) =>
         row.tiles.map((t) => {
@@ -406,19 +380,45 @@ export class GameService {
         })
       );
 
-    this.foundLettersChange$.emit(foundLetters);
+    this.foundLetters$.emit(foundLetters);
   }
 
-  getOpenRow(): Row | undefined {
-    return this.grid.rows.find((r) => r.status === Status.OPEN);
+  private getTodaysWord(): {
+    word: string;
+    nextDay: number;
+    wordIndex: number;
+  } {
+    const epochMs = new Date('February 2, 2022 00:00:00').valueOf();
+    const now = Date.now();
+    const msInDay = 86400000;
+    const index = Math.floor((now - epochMs) / msInDay);
+    const nextDay = (index + 1) * msInDay + epochMs;
+
+    return {
+      word: WORDS[index % WORDS.length],
+      nextDay: nextDay,
+      wordIndex: index,
+    };
   }
 
-  toCopyText(): string {
+  private getOpenRow(): Row {
+    const row = this.currentGame.rows.find((r) => r.status === Status.OPEN);
+
+    if (row) {
+      return row;
+    }
+
+    throw new Error('No open row found');
+  }
+
+  private toCopyText(): string {
     let string = `Papiamento Wordle\n`;
+
     string += `${this.getTotalGuesses()}/${this.tries} ${
-      this.grid.wordIndex + 1
+      this.currentGame.wordIndex + 1
     }\n\n`;
-    this.grid.rows
+
+    this.currentGame.rows
       .filter((r) => r.status === Status.COMPLETED)
       .forEach((row) => {
         let rowString = '';
@@ -440,12 +440,74 @@ export class GameService {
     return string;
   }
 
-  getSolutionWord(): string {
-    return this.grid.word;
+  private getSolutionWord(): string {
+    return this.currentGame.word;
+  }
+
+  private newDayHasDawned(): boolean {
+    return this.currentGame?.nextDay - new Date().valueOf() < 0;
+  }
+
+  private gridChange(): void {
+    this.grid$.emit(JSON.parse(JSON.stringify(this.currentGame.rows)));
+  }
+
+  isInputDisabled(): boolean {
+    return (
+      this.currentGame.gameStatus !== GameStatus.ONGOING || this.inputsDisabled
+    );
+  }
+
+  private broadcastStatsChange(): void {
+    const state = this.stateService.getLatestState();
+
+    let wonsInTries = state.user.finishedGames.filter(
+      (x) => x.tries > 0 && x.tries <= this.tries
+    );
+
+    for (let i = 1; i < this.tries + 1; i++) {
+      if (!wonsInTries.find((x) => x.tries === i)) {
+        wonsInTries.push({ tries: i, count: 0 });
+      }
+    }
+
+    this.gameStatsChange$.emit({
+      totalGamesPlayed: state.user.totalGamesPlayed,
+      totalGamesLost: state.user.totalGamesLost,
+      totalGamesWon: state.user.totalGamesWon,
+      currentStreak: state.user.currentStreak,
+      maxStreak: state.user.maxStreak,
+      wonsInTries: wonsInTries,
+    });
+  }
+
+  private broadcastGameEndChange(gameStatus: GameStatus): void {
+    this.gameEnd$.next({
+      gameStatus,
+      totalGuesses: this.getTotalGuesses(),
+      copyText: this.toCopyText(),
+      nextDay: this.currentGame.nextDay,
+    });
   }
 }
 
 export interface FoundLetter {
   letter: string;
   evaluation: Evaluation;
+}
+
+export interface GameEndResults {
+  copyText: string;
+  nextDay: number;
+  gameStatus: GameStatus;
+  totalGuesses: number;
+}
+
+export interface GameStats {
+  totalGamesWon: number;
+  totalGamesLost: number;
+  totalGamesPlayed: number;
+  wonsInTries: { tries: number; count: number }[];
+  maxStreak: number;
+  currentStreak: number;
 }

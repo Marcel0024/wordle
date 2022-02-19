@@ -21,17 +21,16 @@ export class CountdownComponent implements OnInit, OnDestroy {
 
   ngUnsubscribe$ = new EventEmitter();
 
-  constructor() {}
-
   ngOnInit(): void {
     if (this.countdownTime) {
       this.timeleft = this.getTimeDifference();
       interval(1000)
         .pipe(
           takeUntil(this.ngUnsubscribe$),
-          tap((_) => (this.timeleft = this.getTimeDifference())),
-          filter((_) => this.countdownTime! - new Date().valueOf() <= 0),
-          tap((_) => this.countdownComplete.emit({ complete: true }))
+          tap(() => (this.timeleft = this.getTimeDifference())),
+          filter(() => this.countdownTime! - new Date().valueOf() <= 0),
+          tap(() => this.countdownComplete.emit({ complete: true })),
+          tap(() => (this.timeleft = '00:00:00'))
         )
         .subscribe();
     }

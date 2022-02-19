@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { BrowserModule } from '@angular/platform-browser';
-import { Component } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { KeyboardComponent } from './components/keyboard/keyboard.component';
@@ -22,6 +21,7 @@ import { CountdownComponent } from './components/countdown/countdown.component';
 import { RowComponent } from './components/grid/row/row.component';
 import { TileComponent } from './components/grid/tile/tile.component';
 import { CopyButtonComponent } from './components/copy-button/copy-button.component';
+import { GraphComponent } from './components/dialog/graph/graph.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +35,7 @@ import { CopyButtonComponent } from './components/copy-button/copy-button.compon
     IntroDialogComponent,
     CountdownComponent,
     CopyButtonComponent,
+    GraphComponent,
   ],
   imports: [
     BrowserModule,

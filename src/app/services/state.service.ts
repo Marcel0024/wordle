@@ -24,8 +24,8 @@ export class StateService {
     return this.state.user.viewedInstructions;
   }
 
-  updateViewInstructions(viewed: boolean): void {
-    this.state.user.viewedInstructions = viewed;
+  setViewedInstructions(): void {
+    this.state.user.viewedInstructions = true;
     this.saveSettingsToStorage();
   }
 

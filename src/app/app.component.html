@@ -10,34 +10,17 @@
       <mat-icon class="icon-button">help_outline</mat-icon>
     </button>
     <span class="title" fxAlign="center">Papiamento Wordle</span>
-    <button
-      mat-icon-button
-      (click)="showGameResultsPopup(true)"
-      class="icon-button"
-    >
+    <button mat-icon-button (click)="showGameStatsPopup()" class="icon-button">
       <mat-icon>info_outline</mat-icon>
     </button>
   </div>
-  <div fxLayoutAlign="center center" fxLayout="column">
-    <div
-      fxLayoutGap="5px"
-      [ngStyle]="{
-        display:
-          gameResults?.grid?.gameStatus !== gameStatusEnum.ONGOING ? '' : 'none'
-      }"
-    >
-      <app-copy-button
-        [text]="this.gameService.toCopyText()"
-        fxHide.lt-md
-      ></app-copy-button>
-    </div>
-  </div>
+
   <div>
-    <app-grid [rows]="rows ?? []"></app-grid>
+    <app-grid [rows]="grid ?? []"></app-grid>
   </div>
   <div fxLayoutAlign="center end">
     <app-keyboard
-      [disabled]="gameResults?.grid?.gameStatus !== gameStatusEnum.ONGOING"
+      [disabled]="disabledKeyboard"
       [foundLetters]="foundLetters"
       (onClick)="onDisplayKeyboardClick($event)"
     ></app-keyboard>
