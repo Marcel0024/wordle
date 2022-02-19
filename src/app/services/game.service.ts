@@ -100,6 +100,8 @@ export class GameService {
 
     if (this.currentGame.gameStatus !== GameStatus.ONGOING) {
       this.broadcastGameEndChange(this.currentGame.gameStatus);
+    }else{
+      this.gameEnd$.next(undefined);
     }
   }
 
