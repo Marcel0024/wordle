@@ -10,13 +10,13 @@
 }
 
 .large-container {
-  width: min(28vw, 11em);
+  width: min(28.5vw, 11em);
   height: min(6vh, 3em);
   border: 2px solid rgb(109, 109, 109);
 }
 
 span {
-  font-size: clamp(0.8em, 4vw, 1.5em);
+  font-size: clamp(2.5vw, 4vw, 1.5em);
   color: white;
   background-color: transparent;
 }
