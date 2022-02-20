@@ -87,12 +87,12 @@ export class GameService {
     const input = text.toUpperCase();
 
     if (input === 'BACKSPACE') {
-      this.backspace();
+      this.processBackspace();
     } else if (input === 'ENTER') {
-      this.enter();
+      this.processEnter();
     } else {
       if (input.length === 1) {
-        this.typeLetter(input);
+        this.processInputLetter(input);
       }
     }
 
@@ -121,7 +121,7 @@ export class GameService {
       .subscribe();
   }
 
-  private typeLetter(letter: string): void {
+  private processInputLetter(letter: string): void {
     let row = this.getOpenRow();
     let tile = row.tiles.filter((r) => r.status === Status.OPEN)[0];
 
@@ -137,7 +137,7 @@ export class GameService {
     this.updateGrid();
   }
 
-  private backspace(): void {
+  private processBackspace(): void {
     let row = this.getOpenRow();
     let previousTile = row.tiles
       .filter((r) => r.status === Status.FILLED)
@@ -155,7 +155,7 @@ export class GameService {
     this.updateGrid();
   }
 
-  private enter(): void {
+  private processEnter(): void {
     let row = this.getOpenRow();
 
     const guessWord = row.tiles.map((x) => x.letter).join('');
@@ -366,21 +366,17 @@ export class GameService {
   private finishGame(gameStatus: GameStatus): void {
     this.currentGame.gameStatus = gameStatus;
 
-    if (gameStatus === GameStatus.WON) {
-      navigator.vibrate([500, 25, 500, 25, 500]);
-      this.gaService.gtag('event', 'level_end', {
-        level_name: this.getSolutionWord(),
-        success: true,
-      });
-    } else if (gameStatus === GameStatus.LOST) {
-      this.gaService.gtag('event', 'level_end', {
-        level_name: this.getSolutionWord(),
-        success: false,
-      });
-    }
-
     this.stateService.save(this.currentGame);
     this.stateService.updateGameStats(gameStatus, this.getTotalGuesses());
+
+    this.gaService.gtag('event', 'level_end', {
+      level_name: this.getSolutionWord(),
+      success: gameStatus === GameStatus.WON,
+    });
+
+    if (gameStatus === GameStatus.WON) {
+      navigator.vibrate([500, 25, 500, 25, 500]);
+    }
 
     this.updateStats();
     this.updateGameEnd(gameStatus);
