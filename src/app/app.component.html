@@ -1,28 +1,23 @@
-<div fxLayoutAlign="space-around center" fxLayout="column" class="container">
+<div fxLayoutAlign="space-between center" fxLayout="column" class="container">
   <div
-    fxLayoutAlign="space-around center"
-    fxLayoutAlign.gt-sm="center center"
-    fxLayoutGap.gt-md="20px"
+    fxLayoutAlign="center center"
+    fxLayoutGap="2vw"
     fxLayout="row"
-    [style.width]="'100%'"
+    class="header"
   >
     <button mat-icon-button (click)="openInstructionsDialog()">
       <mat-icon class="icon-button">help_outline</mat-icon>
     </button>
-    <span class="title" fxAlign="center">Papiamento Wordle</span>
-    <button mat-icon-button (click)="showGameStatsPopup()" class="icon-button">
-      <mat-icon>info_outline</mat-icon>
+    <span class="title">Papiamento Wordle</span>
+    <button mat-icon-button (click)="showGameStatsPopup()">
+      <mat-icon class="icon-button">info_outline</mat-icon>
     </button>
   </div>
 
-  <div>
-    <app-grid [rows]="grid ?? []" [fade]="disabledKeyboard"></app-grid>
-  </div>
-  <div fxLayoutAlign="center end">
-    <app-keyboard
-      [disabled]="disabledKeyboard"
-      [foundLetters]="foundLetters"
-      (onClick)="onDisplayKeyboardClick($event)"
-    ></app-keyboard>
-  </div>
+  <app-grid [rows]="grid ?? []" [fade]="disabledKeyboard"></app-grid>
+  <app-keyboard
+    [disabled]="disabledKeyboard"
+    [foundLetters]="foundLetters"
+    (onClick)="onDisplayKeyboardClick($event)"
+  ></app-keyboard>
 </div>
