@@ -1,34 +1,37 @@
 mat-dialog-content {
-  width: 18em;
+  width: min(80vw, 20em);
+  height: 100%;
 }
 
 .text {
+  span {
+    font-size: min(4vw, 1em);
+  }
   .time {
-    font-size: xx-large;
+    font-size: min(15vw, 32px);
   }
 }
 
-.data-container {
-  height: 100%;
-  width: 90%;
+.stats-container {
+  height: min(45vh, 100%);
+  width: min(60vw, 90%);
   border: solid 1px #3a3a3a;
-  padding: 10px;
-  margin-top: 15px;
+  padding: 5px;
+  margin-top: 11px;
   .data {
     text-align: center;
     .number {
-      font-size: 22px;
+      font-size: min(5vw, 22px);
     }
     .label {
-      font-size: 11px;
+      font-size: min(3vw, 11px);
     }
   }
 }
 
 .chart-container {
-  // background-color: darkslategray;
   .chartcanvas {
-    width: 15em;
-    height: 10em;
+    width: min(80vw, 100%);
+    height: min(50vh, 100%);
   }
 }
