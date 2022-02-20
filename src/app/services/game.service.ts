@@ -176,7 +176,7 @@ export class GameService {
     row.status = Status.COMPLETED;
     this.stateService.save(this.currentGame);
 
-    this.gaService.event('select_content', 'enter_word', guessWord);
+    this.gaService.event('input', 'enter_word', guessWord);
 
     // Update UI
     this.uiBusy = true;
