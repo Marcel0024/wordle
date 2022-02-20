@@ -130,6 +130,7 @@ export class GameService {
     tile.letter = letter;
     tile.status = Status.FILLED;
     tile.evaluation = Evaluation.UNKNOWN;
+    navigator.vibrate(100);
 
     this.stateService.save(this.currentGame);
     this.updateGrid();
