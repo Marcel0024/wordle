@@ -15,10 +15,11 @@ import {
 } from 'rxjs';
 import { validGuesses } from 'validguesses';
 import { words as WORDS } from 'words';
+import { FoundLetter, GameEndResults, GameStats } from '../interfaces/game';
 import {
   Evaluation,
   GameStatus,
-  Grid,
+  Game,
   Row,
   Status,
   Tile,
@@ -29,14 +30,12 @@ import { StateService } from './state.service';
   providedIn: 'root',
 })
 export class GameService {
-  currentGame!: Grid;
-
+  startDate: string = 'February 2, 2022 00:00:00';
   wordsLength = 5;
   tries = 6;
 
-  nextDay: number = 0;
-
-  inputsDisabled = false;
+  currentGame!: Game;
+  uiBusy = false;
 
   gameEnd$ = new BehaviorSubject<GameEndResults | undefined>(undefined);
   gameStatsChange$ = new EventEmitter<GameStats>();
@@ -53,12 +52,55 @@ export class GameService {
     this.startTimers();
   }
 
-  startTimers(): void {
+  init(): void {
+    let gameInState = this.stateService.getCurrentGame();
+
+    if (gameInState) {
+      this.currentGame = gameInState;
+
+      if (this.newDayHasDawned()) {
+        if (this.isTheCurrentGameOnGoing()) {
+          this.finishGame(GameStatus.LOST);
+        }
+        this.createNewGame();
+      }
+    } else {
+      this.createNewGame();
+    }
+
+    this.updateFoundLetters();
+    this.updateGrid();
+    this.updateStats();
+
+    this.finishGameIfNecessary();
+
+    this.updateGameEnd(this.currentGame.gameStatus);
+  }
+
+  processInput(text: string): void {
+    if (this.isInputDisabled()) {
+      return;
+    }
+
+    const input = text.toUpperCase();
+
+    if (input === 'BACKSPACE') {
+      this.backspace();
+    } else if (input === 'ENTER') {
+      this.enter();
+    } else {
+      if (input.length === 1) {
+        this.typeLetter(input);
+      }
+    }
+  }
+
+  private startTimers(): void {
     this.interval$ = interval(1000)
       .pipe(
         filter(() => this.newDayHasDawned()),
         tap(() => {
-          if (this.currentGame.gameStatus === GameStatus.ONGOING) {
+          if (this.isTheCurrentGameOnGoing()) {
             this.snackBar.open('Times up!');
           }
           this.init();
@@ -75,37 +117,7 @@ export class GameService {
       .subscribe();
   }
 
-  init(): void {
-    let gameInState = this.stateService.getCurrentGame();
-
-    if (gameInState) {
-      this.currentGame = gameInState;
-
-      if (this.newDayHasDawned()) {
-        if (this.currentGame.gameStatus === GameStatus.ONGOING) {
-          // game finished
-          this.finishGame(GameStatus.LOST);
-        }
-        this.createNewGame();
-      }
-    } else {
-      this.createNewGame();
-    }
-
-    this.foundLettersChange();
-    this.gridChange();
-
-    this.broadcastStatsChange();
-    this.finishGameIfNecessary();
-
-    if (this.currentGame.gameStatus !== GameStatus.ONGOING) {
-      this.broadcastGameEndChange(this.currentGame.gameStatus);
-    } else {
-      this.gameEnd$.next(undefined);
-    }
-  }
-
-  typeLetter(letter: string): void {
+  private typeLetter(letter: string): void {
     let row = this.getOpenRow();
     let tile = row.tiles.filter((r) => r.status === Status.OPEN)[0];
 
@@ -118,10 +130,10 @@ export class GameService {
     tile.evaluation = Evaluation.UNKNOWN;
 
     this.stateService.save(this.currentGame);
-    this.gridChange();
+    this.updateGrid();
   }
 
-  backspace(): void {
+  private backspace(): void {
     let row = this.getOpenRow();
     let previousTile = row.tiles
       .filter((r) => r.status === Status.FILLED)
@@ -136,10 +148,10 @@ export class GameService {
     previousTile.evaluation = Evaluation.UNKNOWN;
 
     this.stateService.save(this.currentGame);
-    this.gridChange();
+    this.updateGrid();
   }
 
-  enter(): void {
+  private enter(): void {
     let row = this.getOpenRow();
 
     const guessWord = row.tiles.map((x) => x.letter).join('');
@@ -163,7 +175,7 @@ export class GameService {
     this.stateService.save(this.currentGame);
 
     // Update UI
-    this.inputsDisabled = true;
+    this.uiBusy = true;
     this.grid$.emit(copyRows);
 
     timer(0, 400) // timer for animation
@@ -182,15 +194,15 @@ export class GameService {
         }),
         toArray(),
         delay(500),
-        tap(() => this.foundLettersChange()), // update keyboard
+        tap(() => this.updateFoundLetters()), // update keyboard
         tap(() => this.finishGameIfNecessary())
       )
       .subscribe(() => {
-        this.inputsDisabled = false;
+        this.uiBusy = false;
         if (guessWord === 'PATIN') {
           // easter egg
           this.snackBar.open('ayy 😂', undefined, { duration: 3000 });
-          setTimeout(() => this.gridChange(), 3000);
+          setTimeout(() => this.updateGrid(), 3000);
         }
       });
   }
@@ -266,10 +278,7 @@ export class GameService {
   }
 
   private finishGameIfNecessary(): void {
-    if (
-      this.currentGame.gameStatus === GameStatus.WON ||
-      this.currentGame.gameStatus === GameStatus.LOST
-    ) {
+    if (!this.isTheCurrentGameOnGoing()) {
       return;
     }
 
@@ -347,8 +356,8 @@ export class GameService {
     this.stateService.save(this.currentGame);
     this.stateService.updateGameStats(gameStatus, this.getTotalGuesses());
 
-    this.broadcastStatsChange();
-    this.broadcastGameEndChange(gameStatus);
+    this.updateStats();
+    this.updateGameEnd(gameStatus);
   }
 
   private getTotalGuesses(): number {
@@ -356,7 +365,7 @@ export class GameService {
       .length;
   }
 
-  private foundLettersChange(): void {
+  private updateFoundLetters(): void {
     const foundLetters: FoundLetter[] = [];
 
     this.currentGame.rows
@@ -390,7 +399,7 @@ export class GameService {
     nextDay: number;
     wordIndex: number;
   } {
-    const epochMs = new Date('February 2, 2022 00:00:00').valueOf();
+    const epochMs = new Date(this.startDate).valueOf();
     const now = Date.now();
     const msInDay = 86400000;
     const index = Math.floor((now - epochMs) / msInDay);
@@ -455,20 +464,22 @@ export class GameService {
     return this.currentGame?.nextDay - new Date().valueOf() < 0;
   }
 
-  private gridChange(): void {
+  private updateGrid(): void {
     this.grid$.emit(JSON.parse(JSON.stringify(this.currentGame.rows)));
   }
 
-  isInputDisabled(): boolean {
-    return (
-      this.currentGame.gameStatus !== GameStatus.ONGOING || this.inputsDisabled
-    );
+  isTheCurrentGameOnGoing(): boolean {
+    return this.currentGame.gameStatus === GameStatus.ONGOING;
   }
 
-  private broadcastStatsChange(): void {
-    const state = this.stateService.getLatestState();
+  public isInputDisabled(): boolean {
+    return !this.isTheCurrentGameOnGoing() || this.uiBusy;
+  }
 
-    let wonsInTries = state.user.finishedGames.filter(
+  private updateStats(): void {
+    const userStats = this.stateService.getUserLatestStats();
+
+    let wonsInTries = userStats.finishedGames.filter(
       (x) => x.tries > 0 && x.tries <= this.tries
     );
 
@@ -479,42 +490,25 @@ export class GameService {
     }
 
     this.gameStatsChange$.emit({
-      totalGamesPlayed: state.user.totalGamesPlayed,
-      totalGamesLost: state.user.totalGamesLost,
-      totalGamesWon: state.user.totalGamesWon,
-      currentStreak: state.user.currentStreak,
-      maxStreak: state.user.maxStreak,
+      totalGamesPlayed: userStats.totalGamesPlayed,
+      totalGamesLost: userStats.totalGamesLost,
+      totalGamesWon: userStats.totalGamesWon,
+      currentStreak: userStats.currentStreak,
+      maxStreak: userStats.maxStreak,
       wonsInTries: wonsInTries,
     });
   }
 
-  private broadcastGameEndChange(gameStatus: GameStatus): void {
-    this.gameEnd$.next({
-      gameStatus,
-      totalGuesses: this.getTotalGuesses(),
-      copyText: this.toCopyText(),
-      nextDay: this.currentGame.nextDay,
-    });
+  private updateGameEnd(gameStatus: GameStatus): void {
+    if (!this.isTheCurrentGameOnGoing()) {
+      this.gameEnd$.next({
+        gameStatus,
+        totalGuesses: this.getTotalGuesses(),
+        copyText: this.toCopyText(),
+        nextDay: this.currentGame.nextDay,
+      });
+    } else {
+      this.gameEnd$.next(undefined);
+    }
   }
-}
-
-export interface FoundLetter {
-  letter: string;
-  evaluation: Evaluation;
-}
-
-export interface GameEndResults {
-  copyText: string;
-  nextDay: number;
-  gameStatus: GameStatus;
-  totalGuesses: number;
-}
-
-export interface GameStats {
-  totalGamesWon: number;
-  totalGamesLost: number;
-  totalGamesPlayed: number;
-  wonsInTries: { tries: number; count: number }[];
-  maxStreak: number;
-  currentStreak: number;
 }

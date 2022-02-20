@@ -5,13 +5,9 @@ import {
   dialogData as DialogData,
 } from './components/dialog/dialog.component';
 import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
+import { FoundLetter, GameEndResults, GameStats } from './interfaces/game';
 import { GameStatus, Row } from './interfaces/state';
-import {
-  FoundLetter,
-  GameEndResults,
-  GameService,
-  GameStats,
-} from './services/game.service';
+import { GameService } from './services/game.service';
 import { StateService } from './services/state.service';
 
 @Component({
@@ -45,11 +41,11 @@ export class AppComponent implements OnInit {
   }
 
   subscribeToGameEvents(): void {
-    this.gameService.gameStatsChange$.subscribe((stats) => {
-      this.gameStats = stats;
-    });
+    this.gameService.gameStatsChange$.subscribe(
+      (stats) => (this.gameStats = stats)
+    );
 
-    this.gameService.gameEnd$.subscribe((gameEndResults) => {
+    this.gameService.gameEnd$.subscribe((gameEndResults): void => {
       if (gameEndResults && gameEndResults.gameStatus != GameStatus.ONGOING) {
         this.disabledKeyboard = true;
       } else {
@@ -64,34 +60,12 @@ export class AppComponent implements OnInit {
   }
 
   onDisplayKeyboardClick(letter: string): void {
-    if (this.gameService.isInputDisabled()) {
-      return;
-    }
-
-    if (letter === 'BACKSPACE') {
-      this.gameService.backspace();
-    } else if (letter === 'ENTER') {
-      this.gameService.enter();
-    } else {
-      this.gameService.typeLetter(letter);
-    }
+    this.gameService.processInput(letter);
   }
 
   @HostListener('document:keydown', ['$event'])
   realKeyboardEvent(event: KeyboardEvent) {
-    if (this.gameService.isInputDisabled()) {
-      return;
-    }
-
-    if (event.key === 'Backspace') {
-      this.gameService.backspace();
-    } else if (event.key === 'Enter') {
-      this.gameService.enter();
-    } else {
-      if (event.key.length === 1) {
-        this.gameService.typeLetter(event.key.toUpperCase());
-      }
-    }
+    this.gameService.processInput(event.key);
   }
 
   showGameStatsPopup(): void {

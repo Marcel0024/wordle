@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { GameStatus, Grid } from '../interfaces/state';
+import {
+  GameStatus,
+  Game,
+  SettingsState,
+  UserSettings,
+} from '../interfaces/state';
 
 @Injectable({
   providedIn: 'root',
@@ -12,12 +17,12 @@ export class StateService {
     this.getOrCreateState();
   }
 
-  getLatestState(): SettingsState {
-    return this.state;
+  getUserLatestStats(): UserSettings {
+    return this.state.user;
   }
 
-  getCurrentGame(): Grid | undefined {
-    return this.state.grid;
+  getCurrentGame(): Game | undefined {
+    return this.state.currentGame ?? this.state.grid;
   }
 
   getViewedInstructions(): boolean {
@@ -29,9 +34,9 @@ export class StateService {
     this.saveSettingsToStorage();
   }
 
-  save(grid: Grid): void {
-    this.state.grid = grid;
-    this.state.currentGame = grid;
+  save(currentGame: Game): void {
+    this.state.grid = undefined;
+    this.state.currentGame = currentGame;
     this.saveSettingsToStorage();
   }
 
@@ -44,21 +49,10 @@ export class StateService {
 
     if (gameStatus === GameStatus.WON) {
       this.state.user.totalGamesWon++;
-
-      if (this.state.user.currentStreak === undefined) {
-        this.state.user.currentStreak = 0;
-      }
-
-      if (this.state.user.currentStreakWordIndex === undefined) {
-        this.state.user.currentStreakWordIndex = 0;
-      }
-
       this.state.user.currentStreak++;
-      this.state.user.currentStreakWordIndex = this.state.grid?.wordIndex ?? 0;
 
-      if (this.state.user.maxStreak === undefined) {
-        this.state.user.maxStreak = 0;
-      }
+      this.state.user.currentStreakWordIndex =
+        this.state.currentGame?.wordIndex ?? 0;
 
       if (this.state.user.maxStreak < this.state.user.currentStreak) {
         this.state.user.maxStreak = this.state.user.currentStreak;
@@ -122,27 +116,4 @@ export class StateService {
     this.state.user.lastSaved = new Date().valueOf();
     localStorage.setItem(this.localStorageKey, JSON.stringify(this.state));
   }
-}
-
-export interface SettingsState {
-  grid: Grid | undefined; // deprecated
-  currentGame: Grid | undefined;
-  user: UserSettings;
-}
-
-export interface UserSettings {
-  viewedInstructions: boolean;
-  totalGamesPlayed: number;
-  totalGamesWon: number;
-  totalGamesLost: number;
-  currentStreak: number;
-  currentStreakWordIndex: number;
-  maxStreak: number;
-  lastSaved: number;
-  finishedGames: FinishedGame[];
-}
-
-export interface FinishedGame {
-  tries: number;
-  count: number;
 }

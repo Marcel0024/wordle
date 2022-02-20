@@ -1,4 +1,10 @@
-export interface Grid {
+export interface SettingsState {
+  currentGame: Game | undefined;
+  grid: Game | undefined; // deprecated
+  user: UserSettings;
+}
+
+export interface Game {
   gameStatus: GameStatus;
   word: string;
   rows: Row[];
@@ -34,4 +40,21 @@ export enum GameStatus {
   ONGOING = 'ONGOING',
   WON = 'WON',
   LOST = 'LOST',
+}
+
+export interface UserSettings {
+  viewedInstructions: boolean;
+  totalGamesPlayed: number;
+  totalGamesWon: number;
+  totalGamesLost: number;
+  currentStreak: number;
+  currentStreakWordIndex: number;
+  maxStreak: number;
+  lastSaved: number;
+  finishedGames: FinishedGame[];
+}
+
+export interface FinishedGame {
+  tries: number;
+  count: number;
 }

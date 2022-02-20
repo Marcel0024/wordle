@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FoundLetter } from 'src/app/interfaces/game';
 import { Evaluation } from '../../interfaces/state';
-import { FoundLetter } from '../../services/game.service';
 
 @Component({
   selector: 'app-keyboard',
