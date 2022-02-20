@@ -27,13 +27,13 @@ span {
 
 @media only screen and (max-width: 600px) {
   .container {
-    width: 2.2em;
-    height: 3em;
+    width: 2em;
+    height: 2.6em;
   }
 
   .large-container {
-    width: 9em;
-    height: 3em;
+    width: 8.8em;
+    height: 2.6em;
   }
   span {
     font-size: 1.4em;
@@ -42,13 +42,13 @@ span {
 
 @media only screen and (max-height: 600px) {
   .container {
-    width: 2em;
-    height: 2.8em;
+    width: 1.8em;
+    height: 2.6em;
   }
 
   .large-container {
-    width: 8.8em;
-    height: 2.8em;
+    width: 8.6em;
+    height: 2.6em;
   }
   span {
     font-size: 1.2em;
