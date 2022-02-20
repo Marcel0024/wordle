@@ -23,6 +23,7 @@
     "@angular/router": "~13.0.0",
     "chart.js": "^3.7.1",
     "fireworks": "^2.2.7",
+    "ngx-google-analytics": "^13.0.0",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

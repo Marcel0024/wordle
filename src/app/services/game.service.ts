@@ -1,6 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import fx from 'fireworks';
+import { GoogleAnalyticsService } from 'ngx-google-analytics';
 import {
   BehaviorSubject,
   delay,
@@ -46,6 +47,7 @@ export class GameService {
   timer: Subscription | undefined;
 
   constructor(
+    private readonly gaService: GoogleAnalyticsService,
     private readonly stateService: StateService,
     private readonly snackBar: MatSnackBar
   ) {
@@ -173,6 +175,8 @@ export class GameService {
 
     row.status = Status.COMPLETED;
     this.stateService.save(this.currentGame);
+
+    this.gaService.event('input', 'enter_word', guessWord);
 
     // Update UI
     this.uiBusy = true;
@@ -352,6 +356,12 @@ export class GameService {
 
   private finishGame(gameStatus: GameStatus): void {
     this.currentGame.gameStatus = gameStatus;
+
+    if (gameStatus === GameStatus.WON) {
+      this.gaService.event('game_end', 'won', this.getSolutionWord());
+    } else if (gameStatus === GameStatus.LOST) {
+      this.gaService.event('game_end', 'lost', this.getSolutionWord());
+    }
 
     this.stateService.save(this.currentGame);
     this.stateService.updateGameStats(gameStatus, this.getTotalGuesses());

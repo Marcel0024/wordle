@@ -22,6 +22,8 @@ import { RowComponent } from './components/grid/row/row.component';
 import { TileComponent } from './components/grid/tile/tile.component';
 import { CopyButtonComponent } from './components/copy-button/copy-button.component';
 import { GraphComponent } from './components/dialog/graph/graph.component';
+import { NgxGoogleAnalyticsModule } from 'ngx-google-analytics';
+import { environment } from './../environments/environment';
 
 @NgModule({
   declarations: [
@@ -48,6 +50,7 @@ import { GraphComponent } from './components/dialog/graph/graph.component';
     MatSnackBarModule,
     MatRippleModule,
     MatTableModule,
+    NgxGoogleAnalyticsModule.forRoot(environment.ga),
   ],
   providers: [
     {

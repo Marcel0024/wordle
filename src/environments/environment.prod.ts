@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  ga: 'G-4ZT9QLZ039',
 };
