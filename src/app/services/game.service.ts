@@ -178,7 +178,10 @@ export class GameService {
     row.status = Status.COMPLETED;
     this.stateService.save(this.currentGame);
 
-    this.gaService.event('input', 'enter_word', guessWord);
+    this.gaService.gtag('event', 'select_content', {
+      content_type: 'word',
+      item_id: guessWord,
+    });
 
     // Update UI
     this.uiBusy = true;
@@ -238,6 +241,9 @@ export class GameService {
       this.currentGame.rows.push(row);
     }
     this.stateService.save(this.currentGame);
+    this.gaService.gtag('event', 'level_start', {
+      level_name: this.currentGame.word,
+    });
   }
 
   private getEvaluations(guess: string, solution: string): Evaluation[] {
@@ -361,9 +367,15 @@ export class GameService {
 
     if (gameStatus === GameStatus.WON) {
       navigator.vibrate([500, 25, 500, 25, 500]);
-      this.gaService.event('level_end', 'won', this.getSolutionWord());
+      this.gaService.gtag('event', 'level_end', {
+        level_name: this.getSolutionWord(),
+        success: true,
+      });
     } else if (gameStatus === GameStatus.LOST) {
-      this.gaService.event('level_end', 'lost', this.getSolutionWord());
+      this.gaService.gtag('event', 'level_end', {
+        level_name: this.getSolutionWord(),
+        success: false,
+      });
     }
 
     this.stateService.save(this.currentGame);
