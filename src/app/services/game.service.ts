@@ -360,7 +360,7 @@ export class GameService {
     this.currentGame.gameStatus = gameStatus;
 
     if (gameStatus === GameStatus.WON) {
-      navigator.vibrate([100, 25, 100]);
+      navigator.vibrate([500, 25, 500, 25, 500]);
       this.gaService.event('level_end', 'won', this.getSolutionWord());
     } else if (gameStatus === GameStatus.LOST) {
       this.gaService.event('level_end', 'lost', this.getSolutionWord());
