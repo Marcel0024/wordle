@@ -176,7 +176,7 @@ export class GameService {
     row.status = Status.COMPLETED;
     this.stateService.save(this.currentGame);
 
-    this.gaService.event('input', 'enter_word', guessWord);
+    this.gaService.event('select_content', 'enter_word', guessWord);
 
     // Update UI
     this.uiBusy = true;
@@ -358,9 +358,9 @@ export class GameService {
     this.currentGame.gameStatus = gameStatus;
 
     if (gameStatus === GameStatus.WON) {
-      this.gaService.event('game_end', 'won', this.getSolutionWord());
+      this.gaService.event('level_end', 'won', this.getSolutionWord());
     } else if (gameStatus === GameStatus.LOST) {
-      this.gaService.event('game_end', 'lost', this.getSolutionWord());
+      this.gaService.event('level_end', 'lost', this.getSolutionWord());
     }
 
     this.stateService.save(this.currentGame);
