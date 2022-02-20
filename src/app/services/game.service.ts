@@ -95,6 +95,8 @@ export class GameService {
         this.typeLetter(input);
       }
     }
+
+    navigator.vibrate(40);
   }
 
   private startTimers(): void {
@@ -130,7 +132,6 @@ export class GameService {
     tile.letter = letter;
     tile.status = Status.FILLED;
     tile.evaluation = Evaluation.UNKNOWN;
-    navigator.vibrate(100);
 
     this.stateService.save(this.currentGame);
     this.updateGrid();
@@ -359,6 +360,7 @@ export class GameService {
     this.currentGame.gameStatus = gameStatus;
 
     if (gameStatus === GameStatus.WON) {
+      navigator.vibrate([100, 25, 100]);
       this.gaService.event('level_end', 'won', this.getSolutionWord());
     } else if (gameStatus === GameStatus.LOST) {
       this.gaService.event('level_end', 'lost', this.getSolutionWord());
