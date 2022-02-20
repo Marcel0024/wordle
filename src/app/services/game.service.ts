@@ -373,6 +373,11 @@ export class GameService {
       level_name: this.getSolutionWord(),
       success: gameStatus === GameStatus.WON,
     });
+    const userStats = this.stateService.getUserLatestStats();
+    this.gaService.gtag('event', 'post_score', {
+      score: userStats.totalGamesPlayed,
+      level: userStats.totalGamesWon,
+    });
 
     if (gameStatus === GameStatus.WON) {
       navigator.vibrate([500, 25, 500, 25, 500]);
