@@ -8,4 +8,5 @@ import { Row } from '../../interfaces/state';
 })
 export class GridComponent {
   @Input() rows!: Row[];
+  @Input() fade = false;
 }
