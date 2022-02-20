@@ -96,7 +96,7 @@ export class GameService {
       }
     }
 
-    navigator.vibrate(40);
+    navigator.vibrate(20);
   }
 
   private startTimers(): void {
@@ -337,6 +337,7 @@ export class GameService {
   private canEnterWord(currentRow: Row, guessWord: string): boolean {
     if (guessWord === 'GIAN') {
       this.snackBar.open(`No tin suficiente letter y e ta marico.`);
+      navigator.vibrate([1000, 25, 1000, 25, 1000]);
       return false;
     }
 
