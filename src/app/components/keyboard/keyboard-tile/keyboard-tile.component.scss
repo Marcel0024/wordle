@@ -26,6 +26,9 @@ span {
 }
 
 @media only screen and (max-width: 600px) {
+  span {
+    font-size: 1.4em;
+  }
   .container {
     width: 1.8em;
     height: 2.5em;
@@ -33,24 +36,33 @@ span {
 
   .large-container {
     width: 8.8em;
-    height: 2.4em;
-  }
-  span {
-    font-size: 1.4em;
+    height: 2.3em;
   }
 }
 
-@media only screen and (max-height: 600px) {
+@media only screen and (max-height: 550px) {
   .container {
-    width: 1.6em;
+    width: 1.7em;
     height: 2.5em;
   }
 
   .large-container {
     width: 8.7em;
-    height: 2.4em;
+    height: 1.9em;
   }
   span {
+    font-size: 1em;
+  }
+}
+
+@media only screen and (max-width: 325px) {
+  span {
     font-size: 1.2em;
+  }
+  .container {
+    width: 1.5em;
+  }
+  .large-container {
+    width: 8em;
   }
 }
