@@ -1,16 +1,15 @@
 <div
   fxLayoutAlign="center center"
   class="tile"
+  [class]="getCssClass()"
   [class.container]="!isLargeWord()"
   [class.large-container]="isLargeWord()"
   [class.fade]="disabled"
-  (click)="clicked()"
-  [style.background-color]="getColor()"
-  [ngStyle]="{ cursor: !disabled ? 'pointer' : '' }"
-  fxFlex="4 4 0"
+  [class.pointer-cursor]="!disabled"
   matRipple
   [matRippleCentered]="true"
   [matRippleDisabled]="disabled"
+  (click)="clicked()"
 >
   <span>
     {{ text }}
