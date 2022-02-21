@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
   DialogComponent,
@@ -59,13 +59,8 @@ export class AppComponent implements OnInit {
     this.gameService.grid$.subscribe((x) => (this.grid = x));
   }
 
-  onDisplayKeyboardClick(letter: string): void {
+  onKeyboardPress(letter: string): void {
     this.gameService.processInput(letter);
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  realKeyboardEvent(event: KeyboardEvent) {
-    this.gameService.processInput(event.key);
   }
 
   showGameStatsPopup(): void {
