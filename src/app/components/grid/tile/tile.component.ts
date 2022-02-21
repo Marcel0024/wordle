@@ -63,27 +63,8 @@ import {
   ],
 })
 export class TileComponent {
-  colorGold = '#b59f3b';
-  colorGreen = '#538d3e';
-  colorGrey = '#3a3a3c';
-
   @Input() text!: string;
   @Input() evaluation: Evaluation | undefined;
 
   @Output() onClick = new EventEmitter<string>();
-
-  getColor(): string {
-    switch (this.evaluation) {
-      case Evaluation.CORRECT:
-        return this.colorGreen;
-      case Evaluation.PRESENT:
-        return this.colorGold;
-      case Evaluation.ABSENT:
-        return this.colorGrey;
-      case Evaluation.UNKNOWN:
-        return 'transparent';
-      default:
-        return 'rgb(109, 109, 109)';
-    }
-  }
 }
