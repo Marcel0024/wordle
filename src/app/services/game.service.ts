@@ -335,11 +335,6 @@ export class GameService {
   }
 
   private canEnterWord(currentRow: Row, guessWord: string): boolean {
-    if (guessWord === 'ARUBA') {
-      this.snackBar.open(`🇦🇼🇦🇼`);
-      return true;
-    }
-
     if (guessWord === 'GIAN') {
       this.snackBar.open(`No tin suficiente letter y e ta marico.`);
       navigator.vibrate([1000, 25, 1000, 25, 1000]);

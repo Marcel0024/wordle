@@ -7,6 +7,10 @@ import { Evaluation } from 'src/app/interfaces/state';
   styleUrls: ['./keyboard-tile.component.scss'],
 })
 export class KeyboardTileComponent {
+  colorGold = '#b59f3b';
+  colorGreen = '#538d3e';
+  colorGrey = '#3a3a3c';
+
   @Input() text!: string;
   @Input() evaluation: Evaluation | undefined;
   @Input() disabled = false;
@@ -21,18 +25,18 @@ export class KeyboardTileComponent {
     return this.text.length > 2;
   }
 
-  getCssClass(): string {
+  getColor(): string {
     switch (this.evaluation) {
       case Evaluation.CORRECT:
-        return 'tile-green';
+        return this.colorGreen;
       case Evaluation.PRESENT:
-        return 'tile-gold';
+        return this.colorGold;
       case Evaluation.ABSENT:
-        return 'tile-grey';
+        return this.colorGrey;
       case Evaluation.UNKNOWN:
         return 'transparent';
       default:
-        return 'tile-light-grey';
+        return 'rgb(109, 109, 109)';
     }
   }
 }

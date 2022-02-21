@@ -6,45 +6,21 @@
 .container {
   width: min(8.5vw, 3em);
   height: min(6vh, 3em);
-  border: 2px solid rgb(83, 83, 83);
+  border: 2px solid rgb(109, 109, 109);
 }
 
 .large-container {
   width: min(28.5vw, 11em);
   height: min(5vh, 3em);
-  border: 2px solid rgb(83, 83, 83);
+  border: 2px solid rgb(109, 109, 109);
 }
 
 span {
   font-size: min(4.5vw, 1.7em);
-  color: rgb(255, 255, 255);
+  color: white;
   background-color: transparent;
 }
 
 .fade {
   opacity: 0.7;
-}
-
-.pointer-cursor {
-  cursor: pointer;
-}
-
-$colorGold: #b59f3b;
-$colorGreen: #538d3e;
-$colorGrey: #3a3a3c;
-
-.tile-green {
-  background-color: $colorGreen;
-}
-
-.tile-gold {
-  background-color: $colorGold;
-}
-
-.tile-grey {
-  background-color: $colorGrey;
-}
-
-.tile-light-grey {
-  background-color: #626262;
 }
