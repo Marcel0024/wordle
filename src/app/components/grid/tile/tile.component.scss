@@ -7,7 +7,7 @@
 }
 
 span {
-  font-size: min(5vw, 1.6em);
+  font-size: clamp(1rem, 1vw + 1.2rem, 2.2rem);
   color: white;
   background-color: transparent;
 }
