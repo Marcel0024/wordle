@@ -91,7 +91,7 @@ export class GameService {
       console.log('STREAK BAD', difference);
       //this.stateService.resetStreak();
     } else {
-      console.log('STREAK GOOD');
+      console.log('STREAK GOOD', todays.wordIndex, this.currentGame.wordIndex);
     }
   }
 
