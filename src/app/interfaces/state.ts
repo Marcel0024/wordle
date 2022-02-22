@@ -48,7 +48,6 @@ export interface UserSettings {
   totalGamesWon: number;
   totalGamesLost: number;
   currentStreak: number;
-  currentStreakWordIndex: number;
   maxStreak: number;
   finishedGames: FinishedGame[];
 }

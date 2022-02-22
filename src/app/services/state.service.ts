@@ -54,10 +54,7 @@ export class StateService {
 
     if (gameStatus === GameStatus.WON) {
       this.state.user.totalGamesWon++;
-      this.state.user.currentStreak++;
-
-      this.state.user.currentStreakWordIndex =
-        this.state.currentGame?.wordIndex ?? 0;
+      this.state.user.currentStreak = this.state.user.currentStreak ?? 0 + 1;
 
       if (this.state.user.maxStreak ?? 0 < this.state.user.currentStreak) {
         this.state.user.maxStreak = this.state.user.currentStreak;
@@ -107,7 +104,6 @@ export class StateService {
         totalGamesPlayed: 0,
         totalGamesWon: 0,
         currentStreak: 0,
-        currentStreakWordIndex: 0,
         maxStreak: 0,
         finishedGames: [],
       },
