@@ -511,11 +511,11 @@ export class GameService {
     this.grid$.emit(JSON.parse(JSON.stringify(this.currentGame.rows)));
   }
 
-  isTheCurrentGameOnGoing(): boolean {
+  private isTheCurrentGameOnGoing(): boolean {
     return this.currentGame.gameStatus === GameStatus.ONGOING;
   }
 
-  public isInputDisabled(): boolean {
+  private isInputDisabled(): boolean {
     return !this.isTheCurrentGameOnGoing() || this.uiBusy;
   }
 
