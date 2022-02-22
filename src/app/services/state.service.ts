@@ -54,7 +54,7 @@ export class StateService {
       this.state.user.currentStreakWordIndex =
         this.state.currentGame?.wordIndex ?? 0;
 
-      if (this.state.user.maxStreak < this.state.user.currentStreak) {
+      if (this.state.user.maxStreak ?? 0 < this.state.user.currentStreak) {
         this.state.user.maxStreak = this.state.user.currentStreak;
       }
 
