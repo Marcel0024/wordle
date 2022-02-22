@@ -50,7 +50,6 @@ export interface UserSettings {
   currentStreak: number;
   currentStreakWordIndex: number;
   maxStreak: number;
-  lastSaved: number;
   finishedGames: FinishedGame[];
 }
 

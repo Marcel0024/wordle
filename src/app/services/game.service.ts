@@ -63,6 +63,8 @@ export class GameService {
       if (this.newDayHasDawned()) {
         if (this.isTheCurrentGameOnGoing()) {
           this.finishGame(GameStatus.LOST);
+        } else {
+          this.validateStreak();
         }
         this.createNewGame();
       }
@@ -77,6 +79,20 @@ export class GameService {
     this.finishGameIfNecessary();
 
     this.updateGameEnd(this.currentGame.gameStatus);
+  }
+
+  validateStreak() {
+    const todays = this.getTodaysWord();
+    const difference = todays.wordIndex - this.currentGame.wordIndex;
+
+    // If game (old word index) is more then 2, then a day has passed so reset streak.
+    if (difference >= 2) {
+      this.snackBar.open('Bo a perde bo streak. Jammer.');
+      console.log('STREAK BAD', difference);
+      //this.stateService.resetStreak();
+    } else {
+      console.log('STREAK GOOD');
+    }
   }
 
   processInput(text: string): void {
@@ -218,6 +234,7 @@ export class GameService {
 
   private createNewGame(): void {
     const todays = this.getTodaysWord();
+
     this.currentGame = {
       gameStatus: GameStatus.ONGOING,
       rows: [],
@@ -335,12 +352,6 @@ export class GameService {
   }
 
   private canEnterWord(currentRow: Row, guessWord: string): boolean {
-    if (guessWord === 'GIAN') {
-      this.snackBar.open(`No tin suficiente letter y e ta marico.`);
-      navigator.vibrate([1000, 25, 1000, 25, 1000]);
-      return false;
-    }
-
     if (!currentRow.tiles.every((x) => x.status === Status.FILLED)) {
       this.snackBar.open(`No tin suficiente letter.`);
       return false;
