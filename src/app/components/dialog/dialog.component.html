@@ -2,7 +2,7 @@
   {{ data.title }}
 </h2>
 <mat-dialog-content fxLayoutAlign="center center" fxLayout="column">
-  <p
+  <span
     *ngIf="this.data.nextDay"
     fxLayout="column"
     fxLayoutAlign="center center"
@@ -20,7 +20,7 @@
       >
       </app-countdown
     ></span>
-  </p>
+  </span>
   <mat-divider></mat-divider>
   <div class="stats-container">
     <div
@@ -69,6 +69,7 @@
       </div>
     </div>
   </div>
+  <mat-divider></mat-divider>
   <div
     class="chart-container"
     fxLayoutAlign="center center"
@@ -80,7 +81,7 @@
     </div>
   </div>
 
-  <div *ngIf="this.data.nextDay">
+  <div *ngIf="this.data.nextDay" class="copy-button">
     <app-copy-button [text]="this.data.copyText"></app-copy-button>
   </div>
 </mat-dialog-content>
