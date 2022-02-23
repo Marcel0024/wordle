@@ -81,17 +81,6 @@ export class GameService {
     this.updateGameEnd(this.currentGame.gameStatus);
   }
 
-  validateStreak() {
-    const todays = this.getTodaysWord();
-    const difference = todays.wordIndex - this.currentGame.wordIndex;
-
-    // If game (old word index) is more then 2, then a day has passed so reset streak.
-    if (difference >= 2) {
-      this.snackBar.open('Bo a perde bo streak. Jammer.');
-      this.stateService.resetStreak();
-    }
-  }
-
   processInput(text: string): void {
     if (this.isInputDisabled()) {
       return;
@@ -108,8 +97,17 @@ export class GameService {
         this.processInputLetter(input);
       }
     }
+  }
 
-    navigator.vibrate(20);
+  private validateStreak(): void {
+    const todays = this.getTodaysWord();
+    const difference = todays.wordIndex - this.currentGame.wordIndex;
+
+    // If game (old word index) is more then 2, then a day has passed so reset streak.
+    if (difference >= 2) {
+      this.snackBar.open('Bo a perde bo streak. Jammer.');
+      this.stateService.resetStreak();
+    }
   }
 
   private startTimers(): void {
@@ -318,7 +316,7 @@ export class GameService {
     } else if (
       this.currentGame.rows.every((x) => x.status === Status.COMPLETED)
     ) {
-      this.snackBar.open(`'${this.currentGame?.word}'`, undefined, {
+      this.snackBar.open(`'${this.currentGame.word}'`, undefined, {
         duration: 5000,
       });
       this.finishGame(GameStatus.LOST);
@@ -381,15 +379,13 @@ export class GameService {
       level_name: this.getSolutionWord(),
       success: gameStatus === GameStatus.WON,
     });
+
     const userStats = this.stateService.getUserLatestStats();
+
     this.gaService.gtag('event', 'post_score', {
       score: userStats.totalGamesPlayed,
       level: userStats.totalGamesWon,
     });
-
-    if (gameStatus === GameStatus.WON) {
-      navigator.vibrate([500, 25, 500, 25, 500]);
-    }
 
     this.updateStats();
     this.updateGameEnd(gameStatus);
