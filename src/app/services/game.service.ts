@@ -88,15 +88,7 @@ export class GameService {
     // If game (old word index) is more then 2, then a day has passed so reset streak.
     if (difference >= 2) {
       this.snackBar.open('Bo a perde bo streak. Jammer.');
-      console.log('STREAK BAD', difference);
-      //this.stateService.resetStreak();
-    } else {
-      console.log(
-        'STREAK GOOD',
-        todays.wordIndex,
-        this.currentGame.wordIndex,
-        difference
-      );
+      this.stateService.resetStreak();
     }
   }
 
