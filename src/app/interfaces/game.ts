@@ -1,9 +1,5 @@
-import { Evaluation, GameStatus } from './state';
-
-export interface FoundLetter {
-  letter: string;
-  evaluation: Evaluation;
-}
+import { Evaluation } from '../enums/evaluation';
+import { GameStatus } from '../enums/gamestatus';
 
 export interface GameEndResults {
   copyText: string;
@@ -12,11 +8,16 @@ export interface GameEndResults {
   totalGuesses: number;
 }
 
-export interface GameStats {
+export interface PlayerStats {
   totalGamesWon: number;
   totalGamesLost: number;
   totalGamesPlayed: number;
   wonsInTries: { tries: number; count: number }[];
   maxStreak: number;
   currentStreak: number;
+}
+
+export interface FoundLetter {
+  letter: string;
+  evaluation: Evaluation;
 }

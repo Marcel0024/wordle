@@ -6,7 +6,7 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
-import { Chart } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
 
 @Component({
   selector: 'app-dialog-graph',
@@ -20,6 +20,10 @@ export class GraphComponent implements AfterViewInit, OnDestroy {
   chartCanvas: ElementRef | undefined;
 
   private chart: Chart | undefined;
+
+  constructor() {
+    Chart.register(...registerables);
+  }
 
   ngAfterViewInit(): void {
     this.initChart();

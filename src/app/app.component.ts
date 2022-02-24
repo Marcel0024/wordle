@@ -1,14 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import {
-  DialogComponent,
-  dialogData as DialogData,
-} from './components/dialog/dialog.component';
-import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
-import { FoundLetter, GameEndResults, GameStats } from './interfaces/game';
-import { GameStatus, Row } from './interfaces/state';
+import { GameStatus } from './enums/gamestatus';
+import { FoundLetter } from './interfaces/game';
+import { Row } from './interfaces/grid';
 import { GameService } from './services/game.service';
-import { StateService } from './services/state.service';
+import { MessagesService } from './services/messages.service';
 
 @Component({
   selector: 'app-root',
@@ -16,47 +11,35 @@ import { StateService } from './services/state.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  gameStats!: GameStats;
-
   grid: Row[] | undefined;
 
   foundLetters: FoundLetter[] = [];
   disabledKeyboard: boolean = false;
-  gameEndResults: GameEndResults | undefined;
 
   constructor(
     private readonly gameService: GameService,
-    private readonly stateService: StateService,
-    private readonly dialog: MatDialog
+    private readonly messageService: MessagesService
   ) {}
 
   ngOnInit(): void {
-    if (!this.stateService.getViewedInstructions()) {
-      this.stateService.setViewedInstructions();
-      this.openInstructionsDialog();
-    }
-
     this.subscribeToGameEvents();
     this.gameService.init();
+    this.messageService.showInstructionsDialogIfNeeded();
   }
 
   subscribeToGameEvents(): void {
-    this.gameService.gameStatsChange$.subscribe(
-      (stats) => (this.gameStats = stats)
-    );
+    this.gameService.gameEnd.subscribe((gameEndResults): void => {
+      this.disabledKeyboard =
+        (gameEndResults && gameEndResults?.gameStatus != GameStatus.ONGOING) ??
+        false;
 
-    this.gameService.gameEnd$.subscribe((gameEndResults): void => {
-      if (gameEndResults && gameEndResults.gameStatus != GameStatus.ONGOING) {
-        this.disabledKeyboard = true;
-      } else {
-        this.disabledKeyboard = false;
-      }
-      this.gameEndResults = gameEndResults;
-      this.showGameResultsPopup(gameEndResults);
+      this.messageService.showGameResultsPopup(gameEndResults);
     });
 
-    this.gameService.foundLetters$.subscribe((x) => (this.foundLetters = x));
-    this.gameService.grid$.subscribe((x) => (this.grid = x));
+    this.gameService.foundLettersChange.subscribe(
+      (x) => (this.foundLetters = x)
+    );
+    this.gameService.gridChange.subscribe((x) => (this.grid = x));
   }
 
   onKeyboardPress(letter: string): void {
@@ -64,67 +47,10 @@ export class AppComponent implements OnInit {
   }
 
   showGameStatsPopup(): void {
-    if (this.gameEndResults) {
-      this.showGameResultsPopup(this.gameEndResults);
-      return;
-    }
-
-    const dialogData = this.getDialogStatsData();
-
-    this.dialog.open(DialogComponent, {
-      data: {
-        ...dialogData,
-        title: 'Stats',
-      },
-    });
-  }
-
-  showGameResultsPopup(gameEndResults: GameEndResults | undefined): void {
-    if (!gameEndResults) {
-      return;
-    }
-
-    const data = {
-      ...this.getDialogStatsData(),
-      nextDay: gameEndResults.nextDay,
-      copyText: gameEndResults.copyText,
-    };
-
-    if (gameEndResults.gameStatus === GameStatus.WON) {
-      this.dialog.open(DialogComponent, {
-        data: {
-          ...data,
-          title: '🎉 Pabien!  🎉',
-          text: `Bo a rij e palabra den ${gameEndResults.totalGuesses} biaha!`,
-        },
-      });
-    } else if (gameEndResults.gameStatus === GameStatus.LOST) {
-      this.dialog.open(DialogComponent, {
-        data: {
-          ...data,
-          title: '😥 Game Over 😥',
-          text: `Lastima! Purba bo suerte otro biaha!`,
-        },
-      });
-    }
+    this.messageService.showGameStatsPopup();
   }
 
   openInstructionsDialog(): void {
-    this.dialog.open(IntroDialogComponent);
-  }
-
-  getDialogStatsData(): DialogData {
-    return {
-      title: '',
-      text: '',
-      nextDay: undefined,
-      totalGamesPlayed: this.gameStats.totalGamesPlayed,
-      totalGamesWon: this.gameStats.totalGamesWon,
-      totalGamesLost: this.gameStats.totalGamesLost,
-      currentStreak: this.gameStats.currentStreak,
-      maxStreak: this.gameStats.maxStreak,
-      wonsInTries: this.gameStats.wonsInTries,
-      copyText: undefined,
-    };
+    this.messageService.openInstructionsDialog();
   }
 }

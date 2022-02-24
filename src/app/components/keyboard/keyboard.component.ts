@@ -5,8 +5,8 @@ import {
   Input,
   Output,
 } from '@angular/core';
+import { Evaluation } from 'src/app/enums/evaluation';
 import { FoundLetter } from 'src/app/interfaces/game';
-import { Evaluation } from '../../interfaces/state';
 
 @Component({
   selector: 'app-keyboard',

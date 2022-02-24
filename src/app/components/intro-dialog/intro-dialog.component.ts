@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Evaluation } from 'src/app/interfaces/state';
+import { Evaluation } from 'src/app/enums/evaluation';
 
 @Component({
   selector: 'app-intro-dialog',

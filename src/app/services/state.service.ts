@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
-import {
-  GameStatus,
-  Game,
-  SettingsState,
-  UserSettings,
-} from '../interfaces/state';
+import { GameStatus } from '../enums/gamestatus';
+import { Game } from '../interfaces/grid';
+import { SettingsState, UserSettings } from '../interfaces/state';
 
 @Injectable({
   providedIn: 'root',
@@ -13,16 +10,13 @@ export class StateService {
   localStorageKey: string = 'usersettings2';
   private state!: SettingsState;
 
-  constructor() {
-    this.getOrCreateState();
-  }
-
   getUserLatestStats(): UserSettings {
     return this.state.user;
   }
 
-  getCurrentGame(): Game | undefined {
-    return this.state.currentGame ?? this.state.grid;
+  loadGame(): Game | undefined {
+    this.getOrCreateState();
+    return this.state.currentGame ?? this.state.grid; // depracted value
   }
 
   getViewedInstructions(): boolean {
@@ -79,7 +73,7 @@ export class StateService {
   }
 
   getOrCreateState(): SettingsState {
-    var settings = localStorage.getItem(this.localStorageKey);
+    const settings = localStorage.getItem(this.localStorageKey);
 
     if (settings === undefined || settings === null) {
       this.createDefaultSettings();

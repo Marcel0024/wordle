@@ -1,7 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Chart, registerables } from 'chart.js';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dialog',
@@ -10,18 +8,15 @@ import { Subscription } from 'rxjs';
 })
 export class DialogComponent implements OnInit {
   timeLeft: string | undefined;
-  countdown$: Subscription | undefined;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public readonly data: dialogData,
+    @Inject(MAT_DIALOG_DATA) public readonly data: DialogData,
     private readonly dialogRef: MatDialogRef<DialogComponent>
-  ) {
-    Chart.register(...registerables);
-  }
+  ) {}
 
   ngOnInit(): void {
     this.dialogRef.disableClose = true;
-    setTimeout(() => (this.dialogRef.disableClose = false), 1000);
+    setTimeout(() => (this.dialogRef.disableClose = false), 500);
   }
 
   countdown(data: { complete: boolean }): void {
@@ -42,7 +37,7 @@ export class DialogComponent implements OnInit {
   }
 }
 
-export interface dialogData {
+export interface DialogData {
   title: string;
   text: string;
   nextDay: number | undefined;

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Tile } from 'src/app/interfaces/state';
+import { Tile } from 'src/app/interfaces/grid';
 
 @Component({
   selector: 'app-row',

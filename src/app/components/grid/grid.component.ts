@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Row } from '../../interfaces/state';
+import { Row } from 'src/app/interfaces/grid';
 
 @Component({
   selector: 'app-grid',

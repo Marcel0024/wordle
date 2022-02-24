@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Evaluation } from 'src/app/interfaces/state';
 import {
   trigger,
   state,
@@ -7,6 +6,7 @@ import {
   animate,
   transition,
 } from '@angular/animations';
+import { Evaluation } from 'src/app/enums/evaluation';
 
 @Component({
   selector: 'app-tile',
