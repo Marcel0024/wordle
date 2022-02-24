@@ -54,9 +54,9 @@ export class StateService {
 
     if (gameStatus === GameStatus.WON) {
       this.state.user.totalGamesWon++;
-      this.state.user.currentStreak = this.state.user.currentStreak ?? 0 + 1;
+      this.state.user.currentStreak++;
 
-      if (this.state.user.maxStreak ?? 0 < this.state.user.currentStreak) {
+      if (this.state.user.maxStreak < this.state.user.currentStreak) {
         this.state.user.maxStreak = this.state.user.currentStreak;
       }
 
