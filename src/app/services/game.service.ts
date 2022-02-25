@@ -207,6 +207,7 @@ export class GameService {
           if (guessWord === 'PATIN') {
             // Easter egg
             const array = ['✊', '🍆', '💦', '💦', '😂'];
+            copyRows[rowIndex].tiles[index].evaluation = Evaluation.CORRECT; // set the evaluation
             copyRows[rowIndex].tiles[index].letter = array[index]; // set the evaluation
           }
 
