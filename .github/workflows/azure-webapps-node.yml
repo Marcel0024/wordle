@@ -1,19 +1,24 @@
 on:
   push:
     branches:
-      - main
+      - just-docker
   workflow_dispatch:
 
 env:
   AZURE_WEBAPP_NAME: papiamento-wordle
   AZURE_WEBAPP_PACKAGE_PATH: "./dist/wordle-papiamento"
-  NODE_VERSION: "14.x"
+  NODE_VERSION: "16.x"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -25,11 +30,29 @@ jobs:
         run: |
           npm install
           npm run build
+          
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2.9.0
 
-      - name: "Deploy to Azure WebApp"
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        
+      - name: 'Build and push image'
+        uses: azure/docker-login@v1
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - run: |
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/wordle:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/wordle:${{ github.sha }}
+
+      - name: 'Deploy to Azure Container Instances'
+        uses: 'azure/aci-deploy@v1'
+        with:
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
+          dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
+          image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
+          registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+          name: aci-sampleapp
+          location: 'west us'
