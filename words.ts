@@ -356,8 +356,7 @@ export const words: string[] = [
   'MENOS',
   'TERMO',
   'PORCH',
-  'DEBIL',
-  'GLOBO',
+  'EXITA',
   'PICHA',
   'ATAKE',
   'DROGA',
@@ -377,7 +376,7 @@ export const words: string[] = [
   'TORNA',
   'HABRI',
   'CINCO',
-  'SOLIA',
+  'EVITA',
 
   'PARTO',
   'AINDA',
