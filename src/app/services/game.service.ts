@@ -347,6 +347,44 @@ export class GameService {
   }
 
   private canEnterWord(currentRow: Row, guessWord: string): boolean {
+    if (guessWord === 'GIAN') {
+      // Update UI
+      const copyRows = JSON.parse(
+        JSON.stringify(this.currentGame.rows)
+      ) as Row[];
+      const rowIndex = this.currentGame.rows.indexOf(currentRow);
+      this.uiBusy = true;
+      this.grid$.emit(copyRows);
+      timer(0, 400) // timer for animation
+        .pipe(
+          take(this.tries - 1),
+          map((index) => {
+            const array2 = [
+              Evaluation.PRESENT,
+              Evaluation.PRESENT,
+              Evaluation.CORRECT,
+              Evaluation.CORRECT,
+              Evaluation.CORRECT,
+            ];
+
+            // Easter egg
+            const array = ['T', 'A', 'G', 'A', 'Y'];
+            copyRows[rowIndex].tiles[index].evaluation = array2[index]; // set the evaluation
+            copyRows[rowIndex].tiles[index].letter = array[index]; // set the evaluation
+
+            this.grid$.emit(copyRows);
+          }),
+          toArray(),
+          delay(500)
+        )
+        .subscribe(() => {
+          this.uiBusy = false;
+          // easter egg
+          this.snackBar.open('lmaoo 😂', undefined, { duration: 3000 });
+          setTimeout(() => this.updateGrid(), 3000);
+          this.startFireworks(5);
+        });
+    }
     if (!currentRow.tiles.every((x) => x.status === Status.FILLED)) {
       this.snackBar.open(`No tin suficiente letter.`);
       return false;
