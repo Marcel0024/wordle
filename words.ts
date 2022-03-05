@@ -41,7 +41,6 @@ export const words: string[] = [
   'MIYON',
   'DUELE',
   'ABUSO',
-  'JOYAS',
   'CINTA',
   'HENDE',
   'STOKI',
