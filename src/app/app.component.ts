@@ -38,6 +38,7 @@ export class AppComponent implements OnInit {
 
     this.subscribeToGameEvents();
     this.gameService.init();
+    this.startVideo();
   }
 
   subscribeToGameEvents(): void {
@@ -126,5 +127,49 @@ export class AppComponent implements OnInit {
       wonsInTries: this.gameStats.wonsInTries,
       copyText: undefined,
     };
+  }
+
+  startVideo() {
+    try {
+      // Create the root video element
+      var video = document.createElement('video');
+      video.setAttribute('loop', '');
+      // Add some styles if needed
+      video.setAttribute('style', 'position: fixed;');
+
+      // A helper to add sources to video
+      function addSourceToVideo(element: any, type: any, dataURI: any) {
+        var source = document.createElement('source');
+        source.src = dataURI;
+        source.type = 'video/' + type;
+        element.appendChild(source);
+      }
+
+      // A helper to concat base64
+      var base64 = function (mimeType: any, base64: any) {
+        return 'data:' + mimeType + ';base64,' + base64;
+      };
+
+      // Add Fake sourced
+      addSourceToVideo(
+        video,
+        'webm',
+        base64(
+          'video/webm',
+          'GkXfo0AgQoaBAUL3gQFC8oEEQvOBCEKCQAR3ZWJtQoeBAkKFgQIYU4BnQI0VSalmQCgq17FAAw9CQE2AQAZ3aGFtbXlXQUAGd2hhbW15RIlACECPQAAAAAAAFlSua0AxrkAu14EBY8WBAZyBACK1nEADdW5khkAFVl9WUDglhohAA1ZQOIOBAeBABrCBCLqBCB9DtnVAIueBAKNAHIEAAIAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AAA='
+        )
+      );
+
+      // Append the video to where ever you need
+      document.body.appendChild(video);
+
+      // Start playing video after any user interaction.
+      // NOTE: Running video.play() handler without a user action may be blocked by browser.
+      var playFn = function () {
+        video.play();
+        document.body.removeEventListener('touchend', playFn);
+      };
+      document.body.addEventListener('touchend', playFn);
+    } catch {}
   }
 }
