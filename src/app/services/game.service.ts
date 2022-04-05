@@ -468,15 +468,22 @@ export class GameService {
     nextDay: number;
     wordIndex: number;
   } {
-    const epochMs = new Date(this.startDate).valueOf();
-    const now = Date.now();
-    const msInDay = 86400000;
-    const index = Math.floor((now - epochMs) / msInDay);
-    const nextDay = (index + 1) * msInDay + epochMs;
+    const epoch = new Date(this.startDate);
+    const start = new Date(epoch);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let index = 0;
+    while (start < today) {
+      index++;
+      start.setDate(start.getDate() + 1);
+    }
+
+    const nextDay = new Date(today);
+    nextDay.setDate(today.getDate() + 1);
 
     return {
       word: WORDS[index % WORDS.length],
-      nextDay: nextDay,
+      nextDay: nextDay.valueOf(),
       wordIndex: index,
     };
   }
