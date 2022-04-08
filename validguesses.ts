@@ -814,6 +814,7 @@ export const validGuesses = [
   'MAREO',
   'MARGA',
   'MARON',
+  'MARYA',
   'MASAL',
   'MASHA',
   'MASKE',
