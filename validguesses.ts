@@ -361,6 +361,7 @@ export const validGuesses = [
   'CREMA',
   'CRÈME',
   'CRIKI',
+  'CROES',
   'CRUDO',
   'CRUEL',
   'CRUSA',
