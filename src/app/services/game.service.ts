@@ -317,7 +317,7 @@ export class GameService {
       this.currentGame.rows.every((x) => x.status === Status.COMPLETED)
     ) {
       this.snackBar.open(`'${this.currentGame.word}'`, undefined, {
-        duration: 5000,
+        duration: 10000,
       });
       this.finishGame(GameStatus.LOST);
     }
