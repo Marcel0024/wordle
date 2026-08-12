@@ -1,17 +1,200 @@
-<div fxLayoutAlign="space-between center" fxLayout="column" class="container">
-  <div fxLayoutAlign="space-between center" fxLayout="row" class="header">
-    <button mat-icon-button (click)="openInstructionsDialog()">
-      <mat-icon class="icon-button">help_outline</mat-icon>
+<div class="flex min-h-dvh flex-col overflow-x-clip bg-paper text-ink selection:bg-coral/30 [@media(min-height:700px)]:h-dvh [@media(min-height:700px)]:overflow-y-clip">
+  <div class="island-glow" aria-hidden="true"></div>
+
+  <header class="relative z-10 mx-auto flex w-full max-w-5xl shrink-0 items-center justify-between px-4 py-3 sm:px-8 sm:py-5">
+    <button
+      type="button"
+      class="icon-button"
+      aria-label="Habri instruccionnan"
+      (click)="store.openModal('help')"
+    >
+      <span aria-hidden="true">?</span>
     </button>
-    <span class="title">Papiamento Wordle</span>
-    <button mat-icon-button (click)="showGameStatsPopup()">
-      <mat-icon class="icon-button">info_outline</mat-icon>
+
+    <div class="text-center leading-none">
+      <p class="font-utility text-[0.62rem] font-extrabold uppercase tracking-[0.34em] text-ocean sm:text-xs">
+        Un palabra pa dia
+      </p>
+      <h1 class="mt-1 font-display text-xl font-black tracking-[-0.04em] text-ink sm:text-3xl">
+        WORDLE <span class="text-coral">PAPIAMENTO</span>
+      </h1>
+    </div>
+
+    <button
+      type="button"
+      class="icon-button"
+      aria-label="Habri resultado y estadisticanan"
+      (click)="store.openModal('stats')"
+    >
+      <span class="flex items-end gap-[2px]" aria-hidden="true">
+        <i class="h-2 w-1 rounded-sm bg-current"></i>
+        <i class="h-4 w-1 rounded-sm bg-current"></i>
+        <i class="h-3 w-1 rounded-sm bg-current"></i>
+      </span>
     </button>
-  </div>
-  <app-grid [rows]="grid ?? []" [fade]="disabledKeyboard"></app-grid>
-  <app-keyboard
-    [disabled]="disabledKeyboard"
-    [foundLetters]="foundLetters"
-    (onKeyPress)="onKeyboardPress($event)"
-  ></app-keyboard>
+  </header>
+
+  <main class="relative z-10 mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col items-center px-2 pb-3 sm:px-6 sm:pb-6">
+    <section class="mb-2 flex w-full max-w-md items-center justify-between border-y border-ocean/15 py-1.5 font-utility text-[0.65rem] font-bold uppercase tracking-[0.16em] text-ocean sm:mb-4 sm:text-xs">
+      <span>Palabra #{{ store.game().wordIndex + 1 }}</span>
+      <span>
+        @if (store.game().status === 'ongoing') {
+          {{ store.guessesUsed() }}/6 purba
+        } @else if (store.game().status === 'won') {
+          Gana · {{ store.guessesUsed() }}/6
+        } @else {
+          Termina · 6/6
+        }
+      </span>
+    </section>
+
+    <section aria-label="Tablero di Wordle" class="game-board">
+      @for (row of store.displayRows(); track $index; let rowIndex = $index) {
+        <div class="grid grid-cols-5 gap-1.5 sm:gap-2" [attr.aria-label]="'Rei ' + (rowIndex + 1)">
+          @for (tile of row; track $index; let tileIndex = $index) {
+            <div
+              class="game-tile"
+              [class.tile-reveal]="store.submittedRow() === rowIndex && tileIndex < store.revealedTiles()"
+              [class.tile-pop]="tile.letter && tile.evaluation === 'unknown' && store.activeRowIndex() === rowIndex"
+              [class]="tileClass(tile.evaluation, !!tile.letter)"
+              [attr.aria-label]="tileLabel(tile, rowIndex, tileIndex)"
+            >
+              <span>{{ tile.letter }}</span>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <p class="sr-only" aria-live="polite">
+      @if (store.busy()) { Evaluando e palabra. }
+      {{ store.message() }}
+    </p>
+
+    <section class="mt-auto w-full max-w-2xl pt-3 sm:pt-5" aria-label="Teclado">
+      @for (row of keyboard; track $index) {
+        <div class="mb-1.5 flex justify-center gap-1 sm:mb-2 sm:gap-1.5">
+          @for (key of row; track key) {
+            <button
+              type="button"
+              class="key-button"
+              [class]="keyClass(key)"
+              [attr.aria-label]="'Letter ' + key"
+              [disabled]="store.busy() || store.game().status !== 'ongoing'"
+              (click)="store.input(key)"
+            >
+              {{ key }}
+            </button>
+          }
+        </div>
+      }
+      <div class="flex justify-center gap-1.5 sm:gap-2">
+        <button
+          type="button"
+          class="action-key flex-[1.45] bg-ocean text-white hover:bg-ocean-dark"
+          [disabled]="store.busy() || store.game().status !== 'ongoing'"
+          (click)="store.input('ENTER')"
+        >
+          Evalua
+        </button>
+        <button
+          type="button"
+          class="action-key flex-1 bg-white text-ink hover:bg-sky"
+          aria-label="Backspace"
+          [disabled]="store.busy() || store.game().status !== 'ongoing'"
+          (click)="store.input('BACKSPACE')"
+        >
+          <span aria-hidden="true">⌫</span> Backspace
+        </button>
+      </div>
+    </section>
+  </main>
+
+  @if (store.message()) {
+    <div class="toast" role="status">{{ store.message() }}</div>
+  }
+
+  @if (store.modal()) {
+    <dialog
+      #modal
+      class="modal-panel"
+      aria-modal="true"
+      [attr.aria-labelledby]="store.modal() === 'help' ? 'help-title' : 'stats-title'"
+      (cancel)="$event.preventDefault(); closeModal()"
+      (click)="onDialogClick($event)"
+    >
+      <article class="modal-card">
+        <button type="button" class="modal-close" aria-label="Sera" autofocus (click)="closeModal()">×</button>
+
+        @if (store.modal() === 'help') {
+          <p class="eyebrow">Con pa hunga</p>
+          <h2 id="help-title" class="modal-title">Haya e palabra den 6 biaha.</h2>
+          <p class="mt-3 text-sm leading-6 text-ink/75 sm:text-base">
+            Skirbi un palabra valido di 5 letter y primi <strong>Evalua</strong>. E señal den cada cuadro ta mustra con serca bo ta.
+          </p>
+
+          <div class="mt-5 space-y-3">
+            <div class="rule-row">
+              <span class="example-tile bg-lagoon text-white">I</span>
+              <p><strong>Corecto</strong><br /><span>E letter ta na e posicion corecto.</span></p>
+            </div>
+            <div class="rule-row">
+              <span class="example-tile bg-gold text-ink">R</span>
+              <p><strong>Otro luga</strong><br /><span>E letter ta den e palabra, pero na un otro posicion.</span></p>
+            </div>
+            <div class="rule-row">
+              <span class="example-tile bg-slate text-white">N</span>
+              <p><strong>No ta aden</strong><br /><span>E letter no ta den e palabra.</span></p>
+            </div>
+          </div>
+
+          <button type="button" class="primary-button mt-6 w-full" (click)="closeModal()">Cuminsa hunga</button>
+        } @else {
+          <p class="eyebrow">Bo progreso</p>
+          <h2 id="stats-title" class="modal-title">
+            @if (store.game().status === 'won') {
+              🎉 Pabien! 🎉
+            } @else if (store.game().status === 'lost') {
+              😥 Game Over 😥
+            } @else {
+              Estadisticanan
+            }
+          </h2>
+
+          @if (store.game().status === 'won') {
+            <p class="mt-2 text-sm text-ink/75">Bo a rij e palabra den {{ store.guessesUsed() }} biaha!</p>
+          } @else if (store.game().status === 'lost') {
+            <p class="mt-2 text-sm text-ink/75">Lastima! Purba bo suerte otro biaha!</p>
+          }
+
+          <div class="mt-5 grid grid-cols-4 gap-2 border-y border-ocean/15 py-4 text-center">
+            <div><strong class="stat-number">{{ store.stats().played }}</strong><span class="stat-label">Hunga</span></div>
+            <div><strong class="stat-number">{{ winRate() }}%</strong><span class="stat-label">Gana</span></div>
+            <div><strong class="stat-number">{{ store.stats().currentStreak }}</strong><span class="stat-label">Racha</span></div>
+            <div><strong class="stat-number">{{ store.stats().maxStreak }}</strong><span class="stat-label">Record</span></div>
+          </div>
+
+          <h3 class="mt-5 font-display text-lg font-black">Purba pa gana</h3>
+          <div class="mt-3 space-y-1.5" aria-label="Distribucion di resultadonan">
+            @for (value of store.stats().distribution; track $index) {
+              <div class="flex items-center gap-2 text-xs font-bold">
+                <span class="w-3 text-right font-utility">{{ $index + 1 }}</span>
+                <span class="distribution-bar" [style.width.%]="distributionWidth(value)">{{ value }}</span>
+              </div>
+            }
+          </div>
+
+          @if (store.game().status !== 'ongoing') {
+            <div class="mt-6 grid grid-cols-[1fr_auto] gap-3 rounded-2xl bg-sky p-3 sm:p-4">
+              <div>
+                <span class="stat-label text-ocean">Palabra nobo den</span>
+                <strong class="mt-1 block font-utility text-xl tracking-wider">{{ countdown() }}</strong>
+              </div>
+              <button type="button" class="primary-button" (click)="share()">Parti resultado</button>
+            </div>
+          }
+        }
+      </article>
+    </dialog>
+  }
 </div>

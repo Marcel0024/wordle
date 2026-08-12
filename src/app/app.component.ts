@@ -1,175 +1,170 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import {
-  DialogComponent,
-  dialogData as DialogData,
-} from './components/dialog/dialog.component';
-import { IntroDialogComponent } from './components/intro-dialog/intro-dialog.component';
-import { FoundLetter, GameEndResults, GameStats } from './interfaces/game';
-import { GameStatus, Row } from './interfaces/state';
-import { GameService } from './services/game.service';
-import { StateService } from './services/state.service';
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  HostListener,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { Evaluation, Tile } from './game.models';
+import { GameStore } from './game.store';
+import { AnalyticsService } from './analytics.service';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit {
-  gameStats!: GameStats;
+export class AppComponent {
+  readonly store = inject(GameStore);
+  private readonly analytics = inject(AnalyticsService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('modal');
+  private readonly now = signal(Date.now());
 
-  grid: Row[] | undefined;
+  readonly keyboard = [
+    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+    ['Z', 'X', 'C', 'V', 'B', 'N', 'Ñ', 'M'],
+  ];
 
-  foundLetters: FoundLetter[] = [];
-  disabledKeyboard: boolean = false;
-  gameEndResults: GameEndResults | undefined;
+  readonly winRate = computed(() => {
+    const stats = this.store.stats();
+    return stats.played === 0 ? 0 : Math.round((stats.won / stats.played) * 100);
+  });
 
-  constructor(
-    private readonly gameService: GameService,
-    private readonly stateService: StateService,
-    private readonly dialog: MatDialog
-  ) {}
+  readonly maxDistribution = computed(() => Math.max(1, ...this.store.stats().distribution));
 
-  ngOnInit(): void {
-    if (!this.stateService.getViewedInstructions()) {
-      this.stateService.setViewedInstructions();
-      this.openInstructionsDialog();
-    }
+  readonly countdown = computed(() => {
+    const remaining = Math.max(0, this.store.game().nextDay - this.now());
+    const hours = Math.floor(remaining / 3_600_000);
+    const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+    const seconds = Math.floor((remaining % 60_000) / 1_000);
+    return [hours, minutes, seconds].map((value) => value.toString().padStart(2, '0')).join(':');
+  });
 
-    this.subscribeToGameEvents();
-    this.gameService.init();
-    this.startVideo();
-  }
-
-  subscribeToGameEvents(): void {
-    this.gameService.gameStatsChange$.subscribe(
-      (stats) => (this.gameStats = stats)
-    );
-
-    this.gameService.gameEnd$.subscribe((gameEndResults): void => {
-      if (gameEndResults && gameEndResults.gameStatus != GameStatus.ONGOING) {
-        this.disabledKeyboard = true;
-      } else {
-        this.disabledKeyboard = false;
-      }
-      this.gameEndResults = gameEndResults;
-      this.showGameResultsPopup(gameEndResults);
+  constructor() {
+    this.analytics.initialize();
+    const removeVideoWorkaround = this.startVideoWorkaround();
+    const interval = window.setInterval(() => {
+      this.now.set(Date.now());
+      if (Date.now() >= this.store.game().nextDay) this.store.rollover();
+    }, 1_000);
+    const reloadTimer = window.setTimeout(() => location.reload(), 86_400_000 * 2);
+    this.destroyRef.onDestroy(() => {
+      window.clearInterval(interval);
+      window.clearTimeout(reloadTimer);
+      removeVideoWorkaround();
     });
 
-    this.gameService.foundLetters$.subscribe((x) => (this.foundLetters = x));
-    this.gameService.grid$.subscribe((x) => (this.grid = x));
-  }
-
-  onKeyboardPress(letter: string): void {
-    this.gameService.processInput(letter);
-  }
-
-  showGameStatsPopup(): void {
-    if (this.gameEndResults) {
-      this.showGameResultsPopup(this.gameEndResults);
-      return;
-    }
-
-    const dialogData = this.getDialogStatsData();
-
-    this.dialog.open(DialogComponent, {
-      data: {
-        ...dialogData,
-        title: 'Stats',
-      },
+    effect(() => {
+      const dialog = this.dialog()?.nativeElement;
+      if (dialog && !dialog.open) dialog.showModal();
     });
   }
 
-  showGameResultsPopup(gameEndResults: GameEndResults | undefined): void {
-    if (!gameEndResults) {
+  @HostListener('document:keydown', ['$event'])
+  onPhysicalKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.store.modal()) {
+      event.preventDefault();
+      this.closeModal();
       return;
     }
-
-    const data = {
-      ...this.getDialogStatsData(),
-      nextDay: gameEndResults.nextDay,
-      copyText: gameEndResults.copyText,
-    };
-
-    if (gameEndResults.gameStatus === GameStatus.WON) {
-      this.dialog.open(DialogComponent, {
-        data: {
-          ...data,
-          title: '🎉 Pabien!  🎉',
-          text: `Bo a rij e palabra den ${gameEndResults.totalGuesses} biaha!`,
-        },
-      });
-    } else if (gameEndResults.gameStatus === GameStatus.LOST) {
-      this.dialog.open(DialogComponent, {
-        data: {
-          ...data,
-          title: '😥 Game Over 😥',
-          text: `Lastima! Purba bo suerte otro biaha!`,
-        },
-      });
+    if (this.store.modal()) return;
+    const key = event.key.toUpperCase();
+    if (key === 'ENTER' || key === 'BACKSPACE' || /^[A-ZÑ]$/.test(key)) {
+      event.preventDefault();
+      this.store.input(key);
     }
   }
 
-  openInstructionsDialog(): void {
-    this.dialog.open(IntroDialogComponent);
+  tileClass(evaluation: Evaluation, filled: boolean): string {
+    if (evaluation === 'correct') return 'tile-correct';
+    if (evaluation === 'present') return 'tile-present';
+    if (evaluation === 'absent') return 'tile-absent';
+    return filled
+      ? 'border-ocean bg-white text-ink shadow-[0_3px_0_#075985]'
+      : 'border-mist bg-white/70 text-ink';
   }
 
-  getDialogStatsData(): DialogData {
-    return {
-      title: '',
-      text: '',
-      nextDay: undefined,
-      totalGamesPlayed: this.gameStats.totalGamesPlayed,
-      totalGamesWon: this.gameStats.totalGamesWon,
-      totalGamesLost: this.gameStats.totalGamesLost,
-      currentStreak: this.gameStats.currentStreak,
-      maxStreak: this.gameStats.maxStreak,
-      wonsInTries: this.gameStats.wonsInTries,
-      copyText: undefined,
-    };
+  keyClass(key: string): string {
+    const evaluation = this.store.keyboardEvaluations().get(key);
+    if (evaluation === 'correct') return 'bg-lagoon text-white border-lagoon-dark';
+    if (evaluation === 'present') return 'bg-gold text-ink border-gold-dark';
+    if (evaluation === 'absent') return 'bg-slate text-white border-slate-dark';
+    return 'bg-white text-ink border-mist hover:border-ocean hover:bg-sky';
   }
 
-  startVideo() {
+  tileLabel(tile: Tile, rowIndex: number, tileIndex: number): string {
+    const status = {
+      unknown: tile.letter ? 'no evalua ainda' : 'bashí',
+      correct: 'letter corecto na e posicion corecto',
+      present: 'letter corecto na un otro posicion',
+      absent: 'letter no ta den e palabra',
+    }[tile.evaluation];
+    return `Rei ${rowIndex + 1}, letter ${tileIndex + 1}: ${tile.letter || status}${tile.letter ? `, ${status}` : ''}`;
+  }
+
+  distributionWidth(value: number): number {
+    return Math.max(value === 0 ? 7 : 14, Math.round((value / this.maxDistribution()) * 100));
+  }
+
+  closeModal(): void {
+    this.dialog()?.nativeElement.close();
+    this.store.closeModal();
+  }
+
+  onDialogClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) this.closeModal();
+  }
+
+  async share(): Promise<void> {
+    const text = this.store.shareText();
     try {
-      // Create the root video element
-      var video = document.createElement('video');
-      video.setAttribute('loop', '');
-      // Add some styles if needed
-      video.setAttribute('style', 'position: fixed;');
-
-      // A helper to add sources to video
-      function addSourceToVideo(element: any, type: any, dataURI: any) {
-        var source = document.createElement('source');
-        source.src = dataURI;
-        source.type = 'video/' + type;
-        element.appendChild(source);
+      if (navigator.share) {
+        await navigator.share({ title: 'Wordle Papiamento', text });
+        this.store.notify('Resultado compartí.');
+      } else {
+        await navigator.clipboard.writeText(text);
+        this.store.notify('Resultado copia.');
       }
+    } catch (error) {
+      if ((error as DOMException).name !== 'AbortError') {
+        this.store.notify('No por a comparti. Purba atrobe.');
+      }
+    }
+  }
 
-      // A helper to concat base64
-      var base64 = function (mimeType: any, base64: any) {
-        return 'data:' + mimeType + ';base64,' + base64;
-      };
-
-      // Add Fake sourced
-      addSourceToVideo(
-        video,
-        'webm',
-        base64(
-          'video/webm',
-          'GkXfo0AgQoaBAUL3gQFC8oEEQvOBCEKCQAR3ZWJtQoeBAkKFgQIYU4BnQI0VSalmQCgq17FAAw9CQE2AQAZ3aGFtbXlXQUAGd2hhbW15RIlACECPQAAAAAAAFlSua0AxrkAu14EBY8WBAZyBACK1nEADdW5khkAFVl9WUDglhohAA1ZQOIOBAeBABrCBCLqBCB9DtnVAIueBAKNAHIEAAIAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AAA='
-        )
-      );
-
-      // Append the video to where ever you need
+  private startVideoWorkaround(): () => void {
+    try {
+      const video = document.createElement('video');
+      video.loop = true;
+      video.style.position = 'fixed';
+      video.style.pointerEvents = 'none';
+      video.setAttribute('aria-hidden', 'true');
+      const source = document.createElement('source');
+      source.type = 'video/webm';
+      source.src =
+        'data:video/webm;base64,GkXfo0AgQoaBAUL3gQFC8oEEQvOBCEKCQAR3ZWJtQoeBAkKFgQIYU4BnQI0VSalmQCgq17FAAw9CQE2AQAZ3aGFtbXlXQUAGd2hhbW15RIlACECPQAAAAAAAFlSua0AxrkAu14EBY8WBAZyBACK1nEADdW5khkAFVl9WUDglhohAA1ZQOIOBAeBABrCBCLqBCB9DtnVAIueBAKNAHIEAAIAwAQCdASoIAAgAAUAmJaQAA3AA/vz0AAA=';
+      video.appendChild(source);
       document.body.appendChild(video);
 
-      // Start playing video after any user interaction.
-      // NOTE: Running video.play() handler without a user action may be blocked by browser.
-      var playFn = function () {
-        video.play();
-        document.body.removeEventListener('touchend', playFn);
+      const play = (): void => {
+        void video.play().catch(() => undefined);
+        document.body.removeEventListener('touchend', play);
       };
-      document.body.addEventListener('touchend', playFn);
-    } catch {}
+      document.body.addEventListener('touchend', play);
+      return () => {
+        document.body.removeEventListener('touchend', play);
+        video.remove();
+      };
+    } catch {
+      return () => undefined;
+    }
   }
 }
